@@ -23,15 +23,14 @@ const router = createBrowserRouter(
       loader={async () => {
         return fetch(serverUrl + "/api/codenames/games");
       }}
-    >
-      <Route
-        path="codenames/:id"
-        element={<CodeNames></CodeNames>}
-        loader={({ params }: { params: any }) => {
-          return fetch(serverUrl + "api/codenames" + params.id);
-        }}
-      ></Route>
-    </Route>,
+    ></Route>,
+    <Route
+      path="codenames/:id"
+      element={<CodeNames></CodeNames>}
+      loader={({ params }: { params: any }) => {
+        return fetch(serverUrl + "/api/codenames/" + params.id);
+      }}
+    ></Route>,
   ])
 );
 const root = ReactDOM.createRoot(

@@ -2,11 +2,13 @@ import { useLoaderData } from "react-router-dom";
 import Card from "react-bootstrap/Card";
 import CardGroup from "react-bootstrap/CardGroup";
 import Col from "react-bootstrap/Col";
+import Row from "react-bootstrap/Row";
 import Container from "react-bootstrap/Container";
 import Modal from "react-bootstrap/Modal";
 import { useState } from "react";
 import WordForm from "./WordForm";
 import { serverUrl } from "./Env";
+import CodeWord from "./CodeWord";
 import axios from "axios";
 import React from "react";
 import { useParams } from "react-router-dom";
@@ -15,7 +17,23 @@ import { useParams } from "react-router-dom";
 export function CodeNames(props: any) {
   const params = useParams();
   const id = params.id;
-  return <div></div>;
+  let gameData = useLoaderData() as any;
+  const [game, setGame] = useState(gameData);
+  return (
+    <div className="d-flex flex-column min-vh-100 justify-content-center align-items-center ">
+      <Container>
+        <Row xs={5} sm={5} md={5} lg={5} xl={5} xxl={5} className="g-2">
+          {game.words.map((word: string) => {
+            return (
+              <Col className=" pb-0 align-items-stretch">
+                <CodeWord word={word} key={word}></CodeWord>
+              </Col>
+            );
+          })}
+        </Row>
+      </Container>
+    </div>
+  );
 }
 
 export function CodeNamesHome() {
