@@ -6,7 +6,8 @@ type WordProps = {
   word: string;
   name?: string;
   color?: Color;
-  onClick?: () => void;
+  onClick?: (e: React.MouseEvent) => void;
+  onContextMenu?: (e: React.MouseEvent) => void;
 };
 type WordState = {};
 
@@ -14,7 +15,7 @@ class CodeWord extends React.Component<WordProps, WordState> {
   render() {
     let color = this.props.color;
     if (!color) {
-      color = Color.rgb(0x18, 255, 255);
+      color = Color.rgb(0xff, 0xe0, 0x82);
     }
     if (this.props.name)
       return (
@@ -34,7 +35,7 @@ class CodeWord extends React.Component<WordProps, WordState> {
       );
     else {
       const maxFontSize = Math.min(30, window.innerHeight / 17);
-      console.log(maxFontSize);
+      // console.log(maxFontSize);
       return (
         <Card
           className=" h-100   text-dark text-center shadow-sm"
@@ -43,6 +44,7 @@ class CodeWord extends React.Component<WordProps, WordState> {
             backgroundColor: color.string(),
             // height: "5rem",
           }}
+          onContextMenu={this.props.onContextMenu}
           onClick={this.props.onClick}
         >
           <Card.Body className="text-dark">
