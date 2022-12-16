@@ -2,10 +2,13 @@ import React from "react";
 import Color from "color";
 import Card from "react-bootstrap/Card";
 import { Textfit } from "react-textfit";
+
+import "./codenames.scss";
 type WordProps = {
   word: string;
   name?: string;
   color?: Color;
+  cover?: boolean;
   onClick?: (e: React.MouseEvent) => void;
   onContextMenu?: (e: React.MouseEvent) => void;
 };
@@ -38,7 +41,10 @@ class CodeWord extends React.Component<WordProps, WordState> {
       // console.log(maxFontSize);
       return (
         <Card
-          className=" h-100   text-dark text-center shadow-sm"
+          className={
+            " h-100   text-dark text-center  shadow-sm" +
+            (this.props.cover ? " text-opacity-0" : "")
+          }
           style={{
             maxWidth: "18rem",
             backgroundColor: color.string(),
@@ -47,7 +53,7 @@ class CodeWord extends React.Component<WordProps, WordState> {
           onContextMenu={this.props.onContextMenu}
           onClick={this.props.onClick}
         >
-          <Card.Body className="text-dark">
+          <Card.Body>
             <Textfit mode="single" max={maxFontSize}>
               {this.props.word}
             </Textfit>

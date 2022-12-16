@@ -30,6 +30,7 @@
     "react-router-dom": "^6.4.5",
     "react-scripts": "5.0.1",
     "react-textfit": "^1.1.1",
+    "sass": "^1.56.2",
     "socket.io": "^4.5.4",
     "socket.io-client": "^4.5.4",
     "typescript": "^4.9.3",

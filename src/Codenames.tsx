@@ -1,4 +1,9 @@
 import { useLoaderData } from "react-router-dom";
+import Form from "react-bootstrap/Form";
+import Navbar from "react-bootstrap/Navbar";
+import ToggleButton from "react-bootstrap/ToggleButton";
+import Nav from "react-bootstrap/Nav";
+import NavDropdown from "react-bootstrap/NavDropdown";
 import Card from "react-bootstrap/Card";
 import CardGroup from "react-bootstrap/CardGroup";
 import Col from "react-bootstrap/Col";
@@ -25,8 +30,10 @@ export function CodeNames(props: any) {
   const id = params.id;
   let gameData = useLoaderData() as any;
   const [showKey, setShowKey] = useState(false);
+  const [hideCovered, setHideCovered] = useState(true);
   const [game, setGame] = useState(gameData);
   const [colors, setColors] = useState(gameData.boardColors);
+  const [spyMaster, setSpyMaster] = useState(false);
   useEffect(() => {
     console.log("sending join message for id " + id);
     socket.emit("join codenames", { id: id });
@@ -51,9 +58,15 @@ export function CodeNames(props: any) {
       socket.off("set color");
     };
   }, [id]);
-  function handleItemClick({ id, event, props, triggerEvent, data }: any) {
-    console.log(event, props, triggerEvent, data);
-    socket.emit("set color", [{ i: props.wordId, c: +id }]);
+  function handleItemClick(
+    params: any //{ id, event, props, triggerEvent, data }: any
+  ) {
+    // console.log(event, props, triggerEvent, data);
+    socket.emit("cnmsg", {
+      msgType: "set color",
+      gameId: id,
+      changes: [{ i: params.props.wordId, c: +params.id }],
+    });
     console.log("send sat color message");
   }
 
@@ -61,19 +74,49 @@ export function CodeNames(props: any) {
   console.log("colors: " + colors.toString());
   return (
     <div>
+      {" "}
+      <Navbar bg="primary" expand="lg">
+        <Container>
+          <Navbar.Brand>BigWord</Navbar.Brand>
+          <Navbar.Toggle aria-controls="basic-navbar-nav" />
+          <Navbar.Collapse id="basic-navbar-nav">
+            <Nav className="me-auto">
+              {" "}
+              <Nav.Item>
+                <NavDropdown title="Settings">
+                  <NavDropdown.Item
+                    onClick={() => {
+                      // this.setState({ displayColorPicker: true });
+                    }}
+                  >
+                    Set colour
+                    <ToggleButton type="checkbox" value="1"></ToggleButton>
+                  </NavDropdown.Item>
+                </NavDropdown>
+              </Nav.Item>
+            </Nav>
+          </Navbar.Collapse>
+        </Container>
+      </Navbar>
       <div className="d-flex flex-column min-vh-100 justify-content-center align-items-center ">
         <Container>
           <Row xs={5} sm={5} md={5} lg={5} xl={5} xxl={5} className="g-2">
             {range(25).map((i: number) => {
               const word = game.words[i];
-              let color = getColor(colors[i]);
+              let color = YELLOW;
               if (showKey && game.key[i]) {
                 color = getColor(game.key[i]);
+              }
+              let covered = false;
+              if (colors[i]) {
+                covered = hideCovered;
+                color = getColor(colors[i]);
               }
               return (
                 <Col className=" pb-0 align-items-stretch" key={"word-" + i}>
                   <CodeWord
                     word={word}
+                    cover={covered}
                     key={word}
                     color={color}
                     onContextMenu={(e) => {
@@ -85,6 +128,34 @@ export function CodeNames(props: any) {
               );
             })}
           </Row>
+        </Container>
+        <Container>
+          <Form.Check
+            type="switch"
+            label="Show key"
+            defaultChecked={showKey}
+            onChange={(event) => {
+              setShowKey(event.target.checked);
+            }}
+          ></Form.Check>{" "}
+          <Form.Check
+            type="switch"
+            className="text-opacity-25 text-dark"
+            label="Hide covered"
+            defaultChecked={hideCovered}
+            onChange={(event) => {
+              setHideCovered(event.target.checked);
+            }}
+          ></Form.Check>
+          <Form.Check
+            type="switch"
+            label="Spy Master"
+            onChange={(event) => {
+              console.log(event.target.checked);
+            }}
+            reverse
+            className="switch-red"
+          ></Form.Check>
         </Container>
       </div>
       <Menu id={menuId}>
