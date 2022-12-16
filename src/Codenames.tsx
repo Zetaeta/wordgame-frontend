@@ -32,7 +32,8 @@ export function CodeNames(props: any) {
   const [showKey, setShowKey] = useState(false);
   const [hideCovered, setHideCovered] = useState(true);
   const [game, setGame] = useState(gameData);
-  const [colors, setColors] = useState(gameData.boardColors);
+  const [colors, setColors] = useState(gameData.colors);
+  const [key, setKey] = useState(gameData.key);
   const [spyMaster, setSpyMaster] = useState(false);
   useEffect(() => {
     console.log("sending join message for id " + id);
@@ -48,6 +49,9 @@ export function CodeNames(props: any) {
         return newColors;
       });
     });
+    socket.on("send key", (key) => {
+      setKey(key);
+    });
     socket.onAny((eventName, message: any) => {
       console.log("receiving message: " + eventName);
       console.log(message);
@@ -56,6 +60,7 @@ export function CodeNames(props: any) {
       console.log("Cleaning up sockets");
       socket.offAny();
       socket.off("set color");
+      socket.off("send key");
     };
   }, [id]);
   function handleItemClick(
@@ -104,8 +109,8 @@ export function CodeNames(props: any) {
             {range(25).map((i: number) => {
               const word = game.words[i];
               let color = YELLOW;
-              if (showKey && game.key[i]) {
-                color = getColor(game.key[i]);
+              if (showKey && key && key[i]) {
+                color = getColor(key[i]);
               }
               let covered = false;
               if (colors[i]) {
@@ -152,6 +157,12 @@ export function CodeNames(props: any) {
             label="Spy Master"
             onChange={(event) => {
               console.log(event.target.checked);
+              if (event.target.checked) {
+                socket.emit("cnmsg", {
+                  msgType: "spymaster",
+                  gameId: id,
+                });
+              }
             }}
             reverse
             className="switch-red"
