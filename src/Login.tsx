@@ -14,7 +14,11 @@ export class LoginForm extends React.Component<LoginProps, LoginState> {
 
   constructor(props: any) {
     super(props);
-    this.state = { name: "JohnSmith", ip: "wordgame.space", port: 3001 };
+    let defaultName = localStorage.getItem("userName");
+    if (!defaultName) {
+      defaultName = "JohnSmith";
+    }
+    this.state = { name: defaultName, ip: "wordgame.space", port: 3001 };
   }
 
   handleChange = (event: any) => {
@@ -26,6 +30,7 @@ export class LoginForm extends React.Component<LoginProps, LoginState> {
   };
 
   handleSubmit = (event: any) => {
+    localStorage.setItem("userName", this.state.name);
     this.props.login(this.state);
     event.preventDefault();
   };

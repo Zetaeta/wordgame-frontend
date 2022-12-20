@@ -1,28 +1,19 @@
 import { useLoaderData } from "react-router-dom";
 import Form from "react-bootstrap/Form";
-import Navbar from "react-bootstrap/Navbar";
-import ToggleButton from "react-bootstrap/ToggleButton";
-import Nav from "react-bootstrap/Nav";
-import NavDropdown from "react-bootstrap/NavDropdown";
-import Card from "react-bootstrap/Card";
-import CardGroup from "react-bootstrap/CardGroup";
 import Col from "react-bootstrap/Col";
 import Row from "react-bootstrap/Row";
 import Container from "react-bootstrap/Container";
-import Modal from "react-bootstrap/Modal";
-import { useState, useEffect } from "react";
-import { io } from "socket.io-client";
-import WordForm from "./WordForm";
-import { serverUrl } from "./Env";
+import { useState, useEffect, useMemo } from "react";
 import CodeWord from "./CodeWord";
-import axios from "axios";
+import { MyNavbar } from "./common";
 import Color from "color";
 import { useParams } from "react-router-dom";
 import { Menu, Item, useContextMenu } from "react-contexify";
 import "react-contexify/dist/ReactContexify.css";
+import socket from "./socket";
+import { EyeFill, Shuffle } from "react-bootstrap-icons";
+import { Button } from "react-bootstrap";
 
-const socketUrl = "ws" + serverUrl.slice(4, -4) + "8000";
-const socket = io(socketUrl);
 // export class CodeNames extends React.Component {}
 const menuId = "colorMenu";
 export function CodeNames(props: any) {
@@ -34,7 +25,8 @@ export function CodeNames(props: any) {
   const [game, setGame] = useState(gameData);
   const [colors, setColors] = useState(gameData.colors);
   const [key, setKey] = useState(gameData.key);
-  const [spyMaster, setSpyMaster] = useState(false);
+  const [spymaster, setSpymaster] = useState(false);
+  const [players, setPlayers] = useState<any[]>([]);
   useEffect(() => {
     console.log("sending join message for id " + id);
     socket.emit("join codenames", { id: id });
@@ -52,6 +44,9 @@ export function CodeNames(props: any) {
     socket.on("send key", (key) => {
       setKey(key);
     });
+    socket.on("player data", (players) => {
+      setPlayers(players);
+    });
     socket.onAny((eventName, message: any) => {
       console.log("receiving message: " + eventName);
       console.log(message);
@@ -61,8 +56,12 @@ export function CodeNames(props: any) {
       socket.offAny();
       socket.off("set color");
       socket.off("send key");
+      socket.off("player data");
     };
   }, [id]);
+  function send(msgType: string, data: any = {}) {
+    socket.emit("cnmsg", { msgType: msgType, gameId: id, ...data });
+  }
   function handleItemClick(
     params: any //{ id, event, props, triggerEvent, data }: any
   ) {
@@ -77,32 +76,24 @@ export function CodeNames(props: any) {
 
   const { show } = useContextMenu({ id: menuId });
   console.log("colors: " + colors.toString());
+  const [team1, team2] = useMemo(() => {
+    let team1 = [];
+    let team2 = [];
+    console.log(players);
+    for (let player of players) {
+      if (player.team == 2) {
+        team2.push(player);
+      } else {
+        team1.push(player);
+      }
+    }
+    return [team1, team2];
+  }, [players]);
+  console.log(team1);
   return (
     <div>
       {" "}
-      <Navbar bg="primary" expand="lg">
-        <Container>
-          <Navbar.Brand>BigWord</Navbar.Brand>
-          <Navbar.Toggle aria-controls="basic-navbar-nav" />
-          <Navbar.Collapse id="basic-navbar-nav">
-            <Nav className="me-auto">
-              {" "}
-              <Nav.Item>
-                <NavDropdown title="Settings">
-                  <NavDropdown.Item
-                    onClick={() => {
-                      // this.setState({ displayColorPicker: true });
-                    }}
-                  >
-                    Set colour
-                    <ToggleButton type="checkbox" value="1"></ToggleButton>
-                  </NavDropdown.Item>
-                </NavDropdown>
-              </Nav.Item>
-            </Nav>
-          </Navbar.Collapse>
-        </Container>
-      </Navbar>
+      <MyNavbar></MyNavbar>
       <div className="d-flex flex-column min-vh-100 justify-content-center align-items-center ">
         <Container>
           <Row xs={5} sm={5} md={5} lg={5} xl={5} xxl={5} className="g-2">
@@ -124,6 +115,7 @@ export function CodeNames(props: any) {
                     cover={covered}
                     key={word}
                     color={color}
+                    invert={color == BLACK}
                     onContextMenu={(e) => {
                       show({ event: e, props: { wordId: i } });
                       console.log("shown");
@@ -154,10 +146,13 @@ export function CodeNames(props: any) {
           ></Form.Check>
           <Form.Check
             type="switch"
+            disabled={spymaster}
+            defaultChecked={spymaster}
             label="Spy Master"
             onChange={(event) => {
               console.log(event.target.checked);
               if (event.target.checked) {
+                setSpymaster(true);
                 socket.emit("cnmsg", {
                   msgType: "spymaster",
                   gameId: id,
@@ -166,7 +161,25 @@ export function CodeNames(props: any) {
             }}
             reverse
             className="switch-red"
-          ></Form.Check>
+          ></Form.Check>{" "}
+          <Row>
+            {" "}
+            <Col>
+              Red team
+              <PlayerList players={team1} />
+            </Col>
+            <Col>
+              Blue team
+              <PlayerList players={team2}></PlayerList>
+            </Col>
+          </Row>
+          <Button
+            onClick={() => {
+              send("shuffle teams");
+            }}
+          >
+            <Shuffle></Shuffle>
+          </Button>
         </Container>
       </div>
       <Menu id={menuId}>
@@ -195,89 +208,13 @@ function range(n: number) {
 }
 
 const YELLOW = Color.rgb(0xff, 0xe0, 0x82);
-const RED = Color.rgb(0xff, 0, 0);
-const BLUE = Color.rgb(0, 0, 0xff);
-const GRAY = Color.rgb(100, 100, 100);
-const BLACK = Color.rgb(0, 0, 0);
+const RED = Color.rgb(0xf4, 0x43, 0x36);
+const BLUE = Color.rgb(0x1e, 0x88, 0xe5);
+const GRAY = Color.rgb(0xd6, 0xd6, 0xd6);
+const BLACK = Color.rgb(0x21, 0x21, 0x21);
 
 function getColor(n: number) {
   return [YELLOW, RED, BLUE, GRAY, BLACK][n];
-}
-
-export function CodeNamesHome() {
-  let games = useLoaderData() as any[];
-  const [newGame, setNewGame] = useState(false);
-  console.log(games);
-  // games = testGames();
-  games = games.filter((p) => p);
-  games.push(null);
-  return (
-    <div className="d-flex flex-column min-vh-100 justify-content-center align-items-center ">
-      <Container>
-        <CardGroup>
-          {games.map((g: any) => {
-            let card = null;
-            let style = {
-              minWidth: "18rem",
-              maxWidth: "18rem",
-              height: "18rem",
-            };
-            let key = "add";
-            if (g) {
-              key = g.id;
-              card = (
-                <a href={`/codenames/${g.id}`}>
-                  {" "}
-                  <Card style={style}>
-                    <Card.Body>
-                      <p className="h1 text-dark">{g.name}</p>
-                    </Card.Body>
-                  </Card>
-                </a>
-              );
-            } else {
-              card = (
-                <Card
-                  style={style}
-                  onClick={() => {
-                    setNewGame(true);
-                  }}
-                >
-                  <Card.Body>
-                    <p className="h1"> New Game</p>
-                  </Card.Body>
-                </Card>
-              );
-            }
-            return (
-              <Col className="container-fluid mt-4" key={key}>
-                {card}
-              </Col>
-            );
-          })}
-        </CardGroup>
-      </Container>
-      <Modal
-        show={newGame}
-        onHide={() => {
-          setNewGame(false);
-        }}
-      >
-        <Modal.Body>
-          <WordForm
-            submit={(name: string) => {
-              setNewGame(false);
-              axios
-                .post(serverUrl + "/api/codenames/new", { name: name })
-                .then((response) => {
-                  console.log(response.data);
-                });
-            }}
-          ></WordForm>
-        </Modal.Body>
-      </Modal>
-    </div>
-  );
 }
 
 function testGames() {
@@ -288,3 +225,27 @@ function testGames() {
 }
 
 export default CodeNames;
+interface Player {
+  name: string;
+  spymaster: boolean;
+}
+
+function PlayerList({ players }: { players: Player[] }) {
+  let playerNo = 0;
+  return (
+    <ul className="list-group">
+      {players.map((player) => {
+        ++playerNo;
+        return (
+          <li key={playerNo.toString()} className="list-group-item">
+            {" "}
+            {player.name}
+            {player.spymaster ? (
+              <EyeFill className="d-inline-block float-end"></EyeFill>
+            ) : null}
+          </li>
+        );
+      })}
+    </ul>
+  );
+}

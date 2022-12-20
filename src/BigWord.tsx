@@ -15,6 +15,7 @@ import Word from "./Word";
 import { Message } from "./Message";
 import * as Msg from "./Message";
 import WordForm from "./WordForm";
+import { globalNavbar } from "./common";
 import {
   CaretRightFill,
   Clock,
@@ -128,6 +129,7 @@ class BigWord extends React.Component<BigWordProps, BigWordState> {
         <Navbar bg="primary" expand="lg">
           <Container>
             <Navbar.Brand>BigWord</Navbar.Brand>
+            {globalNavbar()}
             <Navbar.Toggle aria-controls="basic-navbar-nav" />
             <Navbar.Collapse id="basic-navbar-nav">
               <Nav className="me-auto">

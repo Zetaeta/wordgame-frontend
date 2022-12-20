@@ -9,6 +9,7 @@ type WordProps = {
   name?: string;
   color?: Color;
   cover?: boolean;
+  invert?: boolean;
   onClick?: (e: React.MouseEvent) => void;
   onContextMenu?: (e: React.MouseEvent) => void;
 };
@@ -42,8 +43,12 @@ class CodeWord extends React.Component<WordProps, WordState> {
       return (
         <Card
           className={
-            " h-100   text-dark text-center  shadow-sm" +
-            (this.props.cover ? " text-opacity-0" : "")
+            " h-100    text-center  shadow-sm " +
+            (this.props.cover
+              ? " text-codeword-hidden"
+              : this.props.invert
+              ? "text-codeword-inverted"
+              : "text-codeword")
           }
           style={{
             maxWidth: "18rem",

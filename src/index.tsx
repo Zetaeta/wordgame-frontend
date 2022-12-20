@@ -3,8 +3,9 @@ import ReactDOM from "react-dom/client";
 import "./index.css";
 import App from "./App";
 import { BigWordHome } from "./BigWord";
-import { CodeNamesHome, CodeNames } from "./Codenames";
-import { serverUrl } from "./Env";
+import { CodeNames } from "./Codenames";
+import { BASE_URL } from "./Env";
+import ProfilePage from "./Profile";
 import reportWebVitals from "./reportWebVitals";
 import "bootstrap/dist/css/bootstrap.css";
 import {
@@ -14,6 +15,7 @@ import {
   Route,
   Link,
 } from "react-router-dom";
+import { CodeNamesHome } from "./CodenamesHome";
 const router = createBrowserRouter(
   createRoutesFromElements([
     <Route path="/" element={<BigWordHome />}></Route>,
@@ -21,14 +23,15 @@ const router = createBrowserRouter(
       path="codenames"
       element={<CodeNamesHome></CodeNamesHome>}
       loader={async () => {
-        return fetch(serverUrl + "/api/codenames/games");
+        return fetch(BASE_URL + "/api/codenames/games");
       }}
     ></Route>,
+    <Route path="profile" element={<ProfilePage></ProfilePage>}></Route>,
     <Route
       path="codenames/:id"
       element={<CodeNames></CodeNames>}
       loader={({ params }: { params: any }) => {
-        return fetch(serverUrl + "/api/codenames/" + params.id);
+        return fetch(BASE_URL + "/api/codenames/" + params.id);
       }}
     ></Route>,
   ])

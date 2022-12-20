@@ -1,3 +1,12 @@
 .text-opacity-0 {
   --bs-text-opacity: 0 !important;
 }
+.text-codeword {
+  color: rgba(0, 0, 0, 0.54);
+}
+.text-codeword-inverted {
+  color: rgba(255, 255, 255, 0.54);
+}
+.text-codeword-hidden {
+  color: rgba(0, 0, 0, 0);
+}
