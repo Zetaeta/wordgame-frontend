@@ -20,14 +20,15 @@ class Word extends React.Component<WordProps, WordState> {
         <Card
           className="  mb-3 mx-2  text-dark text-center"
           onClick={this.props.onClick}
-          style={{ maxWidth: "18rem", backgroundColor: color.string() }}
+          style={{
+            //width: "18rem",
+            backgroundColor: color.string(),
+          }}
         >
           <Card.Header>{this.props.name}</Card.Header>
           <Card className="  mx-2 my-2 word-panel shadow-sm">
             {" "}
-            <Card.Body>
-              <p className="h1 text-dark"> {this.props.word}</p>
-            </Card.Body>
+            <Card.Body className="h3 text-dark">{this.props.word}</Card.Body>
           </Card>
         </Card>
       );
@@ -38,9 +39,7 @@ class Word extends React.Component<WordProps, WordState> {
           style={{ maxWidth: "18rem", backgroundColor: color.string() }}
           onClick={this.props.onClick}
         >
-          <Card.Body>
-            <p className="text-dark h1"> {this.props.word}</p>
-          </Card.Body>
+          <Card.Body className="text-dark h1">{this.props.word}</Card.Body>
         </Card>
       );
     }

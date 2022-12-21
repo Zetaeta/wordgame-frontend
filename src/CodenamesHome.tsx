@@ -1,17 +1,27 @@
 import axios from "axios";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Card, CardGroup, Col, Container, Modal } from "react-bootstrap";
 import { useLoaderData } from "react-router-dom";
 import { MyNavbar } from "./common";
 import { BASE_URL } from "./Env";
 import WordForm from "./WordForm";
+import socket from "./socket";
 
 export function CodeNamesHome() {
-  let games = useLoaderData() as any[];
+  let initialGames = useLoaderData() as any[];
+  const [currGames, setGames] = useState(initialGames);
   const [newGame, setNewGame] = useState(false);
-  console.log(games); // games = testGames();
+  // console.log(games); // games = testGames();
+  useEffect(() => {
+    socket.on("cngames", (games) => {
+      setGames(games);
+    });
+    return () => {
+      socket.off("cngames");
+    };
+  });
 
-  games = games.filter((p) => p);
+  let games = currGames.filter((p) => p);
   games.push(null);
   return (
     <div>

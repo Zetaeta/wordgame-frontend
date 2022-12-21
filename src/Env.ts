@@ -8,4 +8,4 @@ export const IO_PORT =
 console.log("hostname:" + window.location.hostname);
 console.log("port:" + window.location.port);
 
-export const BASE_URL = "http://" + SERVER_URL + ":8000";
+export const BASE_URL = "http://" + SERVER_URL + ":" + IO_PORT;

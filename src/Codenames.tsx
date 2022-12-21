@@ -8,7 +8,7 @@ import CodeWord from "./CodeWord";
 import { MyNavbar } from "./common";
 import Color from "color";
 import { useParams } from "react-router-dom";
-import { Menu, Item, useContextMenu } from "react-contexify";
+import { Menu, Item, useContextMenu, Separator } from "react-contexify";
 import "react-contexify/dist/ReactContexify.css";
 import socket from "./socket";
 import { EyeFill, Shuffle } from "react-bootstrap-icons";
@@ -27,6 +27,7 @@ export function CodeNames(props: any) {
   const [key, setKey] = useState(gameData.key);
   const [spymaster, setSpymaster] = useState(false);
   const [players, setPlayers] = useState<any[]>([]);
+  const [topKey, setTopKey] = useState(false);
   useEffect(() => {
     console.log("sending join message for id " + id);
     socket.emit("join codenames", { id: id });
@@ -65,6 +66,10 @@ export function CodeNames(props: any) {
   function handleItemClick(
     params: any //{ id, event, props, triggerEvent, data }: any
   ) {
+    if (params.id === "reveal") {
+      send("reveal color", { words: [params.props.wordId] });
+      return;
+    }
     // console.log(event, props, triggerEvent, data);
     socket.emit("cnmsg", {
       msgType: "set color",
@@ -104,7 +109,7 @@ export function CodeNames(props: any) {
                 color = getColor(key[i]);
               }
               let covered = false;
-              if (colors[i]) {
+              if (colors[i] && !(key && topKey)) {
                 covered = hideCovered;
                 color = getColor(colors[i]);
               }
@@ -116,7 +121,7 @@ export function CodeNames(props: any) {
                     key={word}
                     color={color}
                     invert={color == BLACK}
-                    onContextMenu={(e) => {
+                    onClick={(e) => {
                       show({ event: e, props: { wordId: i } });
                       console.log("shown");
                     }}
@@ -127,14 +132,6 @@ export function CodeNames(props: any) {
           </Row>
         </Container>
         <Container>
-          <Form.Check
-            type="switch"
-            label="Show key"
-            defaultChecked={showKey}
-            onChange={(event) => {
-              setShowKey(event.target.checked);
-            }}
-          ></Form.Check>{" "}
           <Form.Check
             type="switch"
             className="text-opacity-25 text-dark"
@@ -162,6 +159,22 @@ export function CodeNames(props: any) {
             reverse
             className="switch-red"
           ></Form.Check>{" "}
+          <Form.Check
+            type="switch"
+            label="Show key"
+            defaultChecked={showKey}
+            onChange={(event) => {
+              setShowKey(event.target.checked);
+            }}
+          ></Form.Check>{" "}
+          <Form.Check
+            type="switch"
+            label="Key on top"
+            defaultChecked={topKey}
+            onChange={(event) => {
+              setTopKey(event.target.checked);
+            }}
+          ></Form.Check>{" "}
           <Row>
             {" "}
             <Col>
@@ -183,6 +196,10 @@ export function CodeNames(props: any) {
         </Container>
       </div>
       <Menu id={menuId}>
+        <Item onClick={handleItemClick} id="reveal">
+          Reveal
+        </Item>
+        <Separator></Separator>
         <Item onClick={handleItemClick} id={"1"}>
           Red
         </Item>

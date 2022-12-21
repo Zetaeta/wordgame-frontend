@@ -26,6 +26,7 @@ import {
 } from "react-bootstrap-icons";
 //import zWebSocket from "ws-browser";
 import { LoginForm, LoginState } from "./Login";
+import { Col, Row } from "react-bootstrap";
 type BigWordState = {
   clues: Clue[];
   word: string;
@@ -42,7 +43,7 @@ type BigWordState = {
   deletingPlayer?: PlayerId;
 };
 
-type BigWordProps = {};
+type BigWordProps = { logout: () => void };
 
 enum Phase {
   Prelim = "Prelim",
@@ -57,7 +58,13 @@ const defaultColor = Color.rgb(0x18, 255, 255);
 export function BigWordHome() {
   let [login, setLogin] = useState(false);
   if (login) {
-    return <BigWord></BigWord>;
+    return (
+      <BigWord
+        logout={() => {
+          setLogin(false);
+        }}
+      ></BigWord>
+    );
   } else {
     return (
       <LoginForm
@@ -143,15 +150,19 @@ class BigWord extends React.Component<BigWordProps, BigWordState> {
                     className="d-inline-block"
                     size="2em"
                   ></FastForwardFill>
-                  Next Phase
+                  {
+                    // Next Phase
+                  }
                 </Nav.Link>{" "}
                 <Nav.Link
                   onClick={() => {
                     this.sendMsg(Msg.NextTurn());
                   }}
                 >
-                  <SkipEndFill className="d-inline-block" size="2em" /> Next
-                  Round
+                  <SkipEndFill className="d-inline-block" size="2em" />
+                  {
+                    // Next Round
+                  }
                 </Nav.Link>
                 <Nav.Item>
                   <NavDropdown title="Settings">
@@ -175,7 +186,7 @@ class BigWord extends React.Component<BigWordProps, BigWordState> {
           {this.renderPlayers()}
           {this.theWord()}
           {this.theGuess()}
-          <div className="card-group">
+          <Row lg="auto" md="auto" sm="auto" xl="auto" xs="auto" className="">
             {this.state.clues.map((clue) => {
               const name = clue.name ? clue.name : this.getPlayerName(clue.id);
               let color = defaultColor;
@@ -185,22 +196,23 @@ class BigWord extends React.Component<BigWordProps, BigWordState> {
                 color = this.state.colors.get(name) as Color;
               }
               return (
-                <Word
-                  name={name}
-                  word={clue.word}
-                  key={name}
-                  onClick={() => {
-                    if (this.state.phase == Phase.InspectClues) {
-                      this.sendMsg(
-                        Msg.ClueVis(clue.id, !(clue.shown as boolean))
-                      );
-                    }
-                  }}
-                  color={color}
-                ></Word>
+                <Col key={name} lg="auto">
+                  <Word
+                    name={name}
+                    word={clue.word}
+                    onClick={() => {
+                      if (this.state.phase == Phase.InspectClues) {
+                        this.sendMsg(
+                          Msg.ClueVis(clue.id, !(clue.shown as boolean))
+                        );
+                      }
+                    }}
+                    color={color}
+                  ></Word>
+                </Col>
               );
             })}
-          </div>
+          </Row>
           <Modal show={this.state.deletePlayerModal} onHide={closeModal}>
             <Modal.Header closeButton>
               <Modal.Title>Modal title</Modal.Title>
@@ -291,7 +303,11 @@ class BigWord extends React.Component<BigWordProps, BigWordState> {
       (phase == Phase.InspectClues && this.state.myRole == "clue") ||
       phase == Phase.Complete
     ) {
-      return <Button onClick={() => this.sendMsg(Msg.Ready())}>Ready</Button>;
+      return (
+        <Button onClick={() => this.sendMsg(Msg.Ready())} autoFocus>
+          Ready
+        </Button>
+      );
     }
   }
 
@@ -319,9 +335,12 @@ class BigWord extends React.Component<BigWordProps, BigWordState> {
                       </td>
                       <td ref={React.createRef()}>
                         {player.ready ? (
-                          <CheckCircleFill size="1em" />
+                          <CheckCircleFill
+                            size="1em"
+                            className="d-inline-block"
+                          />
                         ) : (
-                          <Clock size="1em" />
+                          <Clock size="1em" className="d-inline-block" />
                         )}
                       </td>
                       <td>
@@ -484,6 +503,8 @@ class BigWord extends React.Component<BigWordProps, BigWordState> {
       let colors = this.state.colors;
       colors.set(msg.player, colorFromValue(msg.colour));
       this.setState({ colors: colors });
+    } else if (mType == "removed") {
+      this.props.logout();
     }
   }
 
@@ -508,7 +529,7 @@ function valueFromRgba(r: number, g: number, b: number, a: number): number {
   let val = 0;
   for (let i = 0; i < 4; ++i) {
     val += arr[i];
-    if (i < 3) val <<= 8;
+    if (i < 3) val = (val << 8) >>> 0;
     console.log(val.toString(16));
   }
   console.log(val.toString(16));
