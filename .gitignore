@@ -10,6 +10,7 @@
 
 # production
 /build
+/public/bootswatch
 
 # misc
 .DS_Store

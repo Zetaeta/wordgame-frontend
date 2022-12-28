@@ -8,5 +8,24 @@
   color: rgba(255, 255, 255, 0.54);
 }
 .text-codeword-hidden {
-  color: rgba(0, 0, 0, 0);
+  color: rgba(0, 0, 0, 0) !important;
+}
+.mini-cell {
+  width: 10px;
+  height: 10px;
+}
+.cn-red {
+  background-color: #f44336 !important;
+}
+.cn-blue {
+  background-color: #1e88e5 !important;
+}
+.cn-default {
+  background-color: #ffe082 !important;
+}
+.cn-gray {
+  background-color: #d6d6d6 !important;
+}
+.cn-black {
+  background-color: #212121 !important;
 }

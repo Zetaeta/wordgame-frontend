@@ -58,7 +58,15 @@ class CodeWord extends React.Component<WordProps, WordState> {
           onContextMenu={this.props.onContextMenu}
           onClick={this.props.onClick}
         >
-          <Card.Body>
+          <Card.Body
+            className={
+              this.props.cover
+                ? " text-codeword-hidden"
+                : this.props.invert
+                ? "text-codeword-inverted"
+                : "text-codeword"
+            }
+          >
             <Textfit mode="single" max={maxFontSize}>
               {this.props.word}
             </Textfit>

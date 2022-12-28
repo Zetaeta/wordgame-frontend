@@ -2,6 +2,8 @@ import Navbar from "react-bootstrap/Navbar";
 import Container from "react-bootstrap/Container";
 import Nav from "react-bootstrap/Nav";
 import "./Profile";
+import { NavDropdown } from "react-bootstrap";
+import ThemeSelector from "./ThemeSelector";
 
 export function globalNavbar() {
   return (
@@ -20,6 +22,13 @@ export function MyNavbar(props: any) {
         <Navbar.Brand>BigWord</Navbar.Brand>
         {globalNavbar()}
         {props.children}
+        <Nav className="me-auto">
+          <NavDropdown title="Settings">
+            <NavDropdown.Item>
+              <ThemeSelector></ThemeSelector>
+            </NavDropdown.Item>
+          </NavDropdown>
+        </Nav>
       </Container>
     </Navbar>
   );

@@ -3,9 +3,19 @@ import Button from "react-bootstrap/Button";
 import Form from "react-bootstrap/Form";
 import { useState } from "react";
 import { MyNavbar } from "./common";
-const savedUN = localStorage.getItem("username");
 const savedDN = localStorage.getItem("name");
-export const defaultUN = savedUN ? savedUN : randomUsername();
+export const defaultUN = getSavedUN();
+
+function getSavedUN() {
+  const savedUN = localStorage.getItem("username");
+  if (savedUN) {
+    return savedUN;
+  }
+  const random = randomUsername();
+  localStorage.setItem("username", random);
+  return random;
+}
+
 export const defaultDN = savedDN ? savedDN : "Player";
 export let username = defaultUN;
 export let name = defaultDN;
