@@ -23,11 +23,7 @@ export function MyNavbar(props: any) {
         {globalNavbar()}
         {props.children}
         <Nav className="me-auto">
-          <NavDropdown title="Settings">
-            <NavDropdown.Item>
-              <ThemeSelector></ThemeSelector>
-            </NavDropdown.Item>
-          </NavDropdown>
+          <ThemeSelector></ThemeSelector>
         </Nav>
       </Container>
     </Navbar>

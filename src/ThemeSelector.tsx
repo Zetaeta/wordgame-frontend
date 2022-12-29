@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Form } from "react-bootstrap";
+import { Form, NavDropdown } from "react-bootstrap";
 
 export function ThemeSelector() {
   let defaultTheme = localStorage.getItem("theme");
@@ -44,20 +44,24 @@ export function ThemeSelector() {
           "bootswatch/5.2.3/" + themeName.toLowerCase() + "/bootstrap.min.css"
         }
       ></link>
-      <Form.Select
-        onChange={(e) => {
-          setThemeName(e.target.value);
-          localStorage.setItem("theme", e.target.value);
-        }}
-      >
-        {themes.map((theme) => {
-          return (
-            <option value={theme.toLowerCase()} key={theme}>
-              {theme}
-            </option>
-          );
-        })}
-      </Form.Select>
+      <NavDropdown title="Theme">
+        <NavDropdown.Item>
+          <Form.Select
+            onChange={(e) => {
+              setThemeName(e.target.value);
+              localStorage.setItem("theme", e.target.value);
+            }}
+          >
+            {themes.map((theme) => {
+              return (
+                <option value={theme.toLowerCase()} key={theme}>
+                  {theme}
+                </option>
+              );
+            })}
+          </Form.Select>
+        </NavDropdown.Item>
+      </NavDropdown>
     </>
   );
 }
