@@ -41,27 +41,23 @@ export function ThemeSelector() {
         rel="stylesheet"
         type="text/css"
         href={
-          "bootswatch/5.2.3/" + themeName.toLowerCase() + "/bootstrap.min.css"
+          "/bootswatch/5.2.3/" + themeName.toLowerCase() + "/bootstrap.min.css"
         }
       ></link>
-      <NavDropdown title="Theme">
-        <NavDropdown.Item>
-          <Form.Select
-            onChange={(e) => {
-              setThemeName(e.target.value);
-              localStorage.setItem("theme", e.target.value);
-            }}
-          >
-            {themes.map((theme) => {
-              return (
-                <option value={theme.toLowerCase()} key={theme}>
-                  {theme}
-                </option>
-              );
-            })}
-          </Form.Select>
-        </NavDropdown.Item>
-      </NavDropdown>
+      <Form.Select
+        onChange={(e) => {
+          setThemeName(e.target.value);
+          localStorage.setItem("theme", e.target.value);
+        }}
+      >
+        {themes.map((theme) => {
+          return (
+            <option value={theme.toLowerCase()} key={theme}>
+              {theme}
+            </option>
+          );
+        })}
+      </Form.Select>
     </>
   );
 }

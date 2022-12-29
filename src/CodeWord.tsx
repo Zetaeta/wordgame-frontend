@@ -51,7 +51,7 @@ class CodeWord extends React.Component<WordProps, WordState> {
               : "text-codeword")
           }
           style={{
-            maxWidth: "18rem",
+            // maxWidth: "16rem",
             backgroundColor: color.string(),
             // height: "5rem",
           }}
@@ -60,11 +60,12 @@ class CodeWord extends React.Component<WordProps, WordState> {
         >
           <Card.Body
             className={
-              this.props.cover
+              "px-2 py-2 d-flex flex-column justify-content-center " +
+              (this.props.cover
                 ? " text-codeword-hidden"
                 : this.props.invert
                 ? "text-codeword-inverted"
-                : "text-codeword"
+                : "text-codeword")
             }
           >
             <Textfit mode="single" max={maxFontSize}>

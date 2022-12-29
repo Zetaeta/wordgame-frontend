@@ -16,6 +16,8 @@ import { Button } from "react-bootstrap";
 
 // export class CodeNames extends React.Component {}
 const menuId = "colorMenu";
+const teamNames = ["Unassigned", "Red", "Blue", "Neutral", "Assassin"];
+const teamClasses = ["cn-default", "cn-red", "cn-blue", "cn-gray", "cn-black"];
 export function CodeNames(props: any) {
   const params = useParams();
   const id = params.id;
@@ -28,6 +30,8 @@ export function CodeNames(props: any) {
   const [spymaster, setSpymaster] = useState(false);
   const [players, setPlayers] = useState<any[]>([]);
   const [topKey, setTopKey] = useState(false);
+  const [listView, setListView] = useState(false);
+  const words = game.words;
   useEffect(() => {
     console.log("sending join message for id " + id);
     socket.emit("join codenames", { id: id });
@@ -95,46 +99,120 @@ export function CodeNames(props: any) {
     return [team1, team2];
   }, [players]);
   console.log(team1);
+  let gameBoard;
+
+  function displayProps(i: number): [number, boolean] {
+    let color = 0;
+    if (showKey && key && key[i]) {
+      color = key[i];
+    }
+    let covered = false;
+    if (colors[i] && !(key && topKey)) {
+      covered = hideCovered;
+      color = colors[i];
+    }
+    return [color, covered];
+  }
+
+  const displayInfo = useMemo(() => {
+    return range(25).map(displayProps);
+  }, [colors, key, showKey, hideCovered, topKey]);
+  const wordsByTeam = useMemo(() => {
+    let base: number[][] = [[], [], [], [], []];
+    for (let i = 0; i < 25; i++) {
+      base[displayInfo[i][0]].push(i);
+    }
+    return base.map((array) =>
+      array.sort((a, b) => {
+        return +displayInfo[a][1] - +displayInfo[b][1];
+      })
+    );
+  }, [displayInfo, words]);
+  if (listView) {
+    gameBoard = (
+      <Container>
+        <Row>
+          {wordsByTeam.map((wordInds, team) => {
+            const list = wordInds.map((i) => {
+              const hidden = displayInfo[i][1];
+              const invert = team == 4;
+              return (
+                <li
+                  className={
+                    "list-group-item fw-bold " +
+                    (hidden
+                      ? "text-codeword-hidden "
+                      : invert
+                      ? "text-codeword-inverted "
+                      : " text-codeword ") +
+                    teamClasses[team]
+                  }
+                  onClick={(e) => {
+                    show({ event: e, props: { wordId: i } });
+                    console.log("shown");
+                  }}
+                >
+                  {words[i]}
+                </li>
+              );
+            });
+            if (list.length == 0) {
+              return null;
+            }
+            // list.unshift(<li></li>);
+            return (
+              <Col>
+                <div className="h3">{teamNames[team]}</div>
+                <ul className={"list-group " + teamClasses[team]}>{list}</ul>
+              </Col>
+            );
+          })}
+        </Row>
+      </Container>
+    );
+  } else {
+    gameBoard = (
+      <Container>
+        <Row xs={5} sm={5} md={5} lg={5} xl={5} xxl={5} className="g-1">
+          {range(25).map((i: number) => {
+            const word = game.words[i];
+
+            const [colorId, covered] = displayInfo[i];
+            const color = getColor(colorId);
+            return (
+              <Col
+                className="fw-bold pb-0 align-items-stretch"
+                key={"word-" + i}
+              >
+                <CodeWord
+                  word={
+                    word //.toUpperCase()
+                  }
+                  cover={covered}
+                  key={word}
+                  color={color}
+                  invert={color == BLACK}
+                  onClick={(e) => {
+                    show({ event: e, props: { wordId: i } });
+                    console.log("shown");
+                  }}
+                ></CodeWord>
+              </Col>
+            );
+          })}
+        </Row>
+      </Container>
+    );
+  }
   return (
     <div>
       {" "}
       <MyNavbar></MyNavbar>
       <div className="d-flex flex-column min-vh-100 justify-content-center align-items-center ">
-        <Container>
-          <Row xs={5} sm={5} md={5} lg={5} xl={5} xxl={5} className="g-2">
-            {range(25).map((i: number) => {
-              const word = game.words[i];
-              let color = YELLOW;
-              if (showKey && key && key[i]) {
-                color = getColor(key[i]);
-              }
-              let covered = false;
-              if (colors[i] && !(key && topKey)) {
-                covered = hideCovered;
-                color = getColor(colors[i]);
-              }
-              return (
-                <Col className=" pb-0 align-items-stretch" key={"word-" + i}>
-                  <CodeWord
-                    word={word}
-                    cover={covered}
-                    key={word}
-                    color={color}
-                    invert={color == BLACK}
-                    onClick={(e) => {
-                      show({ event: e, props: { wordId: i } });
-                      console.log("shown");
-                    }}
-                  ></CodeWord>
-                </Col>
-              );
-            })}
-          </Row>
-        </Container>
+        {gameBoard}
         <Container>
           <Form.Check
             type="switch"
-            className="text-opacity-25 text-dark"
             label="Hide covered"
             defaultChecked={hideCovered}
             onChange={(event) => {
@@ -165,6 +243,14 @@ export function CodeNames(props: any) {
             defaultChecked={showKey}
             onChange={(event) => {
               setShowKey(event.target.checked);
+            }}
+          ></Form.Check>
+          <Form.Check
+            type="switch"
+            label="List View"
+            defaultChecked={listView}
+            onChange={(event) => {
+              setListView(event.target.checked);
             }}
           ></Form.Check>{" "}
           <Form.Check

@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import {
   Button,
   Card,
-  CardGroup,
+  Row,
   Col,
   Container,
   Form,
@@ -60,15 +60,19 @@ export function CodeNamesHome() {
       }
       <div className="d-flex flex-column min-vh-100 justify-content-center align-items-center ">
         <Container>
-          <CardGroup>
+          <Row className="g-1 row-cols-auto">
             {games.map((g: any) => {
               let card = null;
               let style = {
-                minWidth: "18rem",
+                minWidth: "10rem",
                 maxWidth: "18rem",
-                height: "18rem",
+                // height: "12rem",
               };
               let key = "add";
+              const cardProps = {
+                style: style,
+                className: "h-100 px-1",
+              };
 
               if (g) {
                 key = g.id;
@@ -78,12 +82,12 @@ export function CodeNamesHome() {
                     className="text-decoration-none"
                   >
                     {" "}
-                    <Card style={style}>
-                      <Card.Body>
-                        <div className="h1">
+                    <Card {...cardProps}>
+                      <Card.Body className="px-1">
+                        <div className="h2">
                           <Button
                             variant="link"
-                            className="float-end"
+                            className="float-end px-1"
                             onClick={(e) => {
                               e.stopPropagation();
                               e.preventDefault();
@@ -106,7 +110,7 @@ export function CodeNamesHome() {
               } else {
                 card = (
                   <Card
-                    style={style}
+                    {...cardProps}
                     onClick={() => {
                       axios
                         .get(BASE_URL + "/api/wordsource/default")
@@ -121,19 +125,19 @@ export function CodeNamesHome() {
                     }}
                   >
                     <Card.Body>
-                      <p className="h1"> New Game</p>
+                      <p className="h2"> New Game</p>
                     </Card.Body>
                   </Card>
                 );
               }
 
               return (
-                <Col className="container-fluid mt-4" key={key}>
+                <Col className=" align-items-stretch pb-0 mt-4" key={key}>
                   {card}
                 </Col>
               );
             })}
-          </CardGroup>
+          </Row>
         </Container>{" "}
         <Modal show={deleteGame != null} onHide={closeDelete}>
           <Modal.Header closeButton>
