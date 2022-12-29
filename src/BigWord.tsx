@@ -27,7 +27,10 @@ import {
 //import zWebSocket from "ws-browser";
 import { LoginForm, LoginState } from "./Login";
 import { Col, Row } from "react-bootstrap";
-type BigWordState = {
+import { Source, WordSourceEditor } from "./WordSourceEditor";
+import axios from "axios";
+import { BASE_URL } from "./Env";
+interface BigWordState {
   clues: Clue[];
   word: string;
   guess: string;
@@ -41,7 +44,9 @@ type BigWordState = {
   deletePlayerModal: boolean;
   displayColorPicker: boolean;
   deletingPlayer?: PlayerId;
-};
+  wordSourceSelector: boolean;
+  wordSources: Source[];
+}
 
 type BigWordProps = { logout: () => void };
 
@@ -117,6 +122,8 @@ class BigWord extends React.Component<BigWordProps, BigWordState> {
       colors: new Map<string, Color>(),
       deletePlayerModal: false,
       displayColorPicker: false,
+      wordSourceSelector: false,
+      wordSources: [],
     };
     if (socket) {
       socket.onmessage = (data) => {
@@ -172,6 +179,19 @@ class BigWord extends React.Component<BigWordProps, BigWordState> {
                       }}
                     >
                       Set colour
+                    </NavDropdown.Item>
+                    <NavDropdown.Item
+                      onClick={() => {
+                        axios
+                          .get(BASE_URL + "/api/wordsource/current")
+                          .then((response) => {
+                            console.log(response.data);
+                            this.setState({ wordSources: response.data });
+                          });
+                        this.setState({ wordSourceSelector: true });
+                      }}
+                    >
+                      Set word source
                     </NavDropdown.Item>
                   </NavDropdown>
                 </Nav.Item>
@@ -268,6 +288,19 @@ class BigWord extends React.Component<BigWordProps, BigWordState> {
             <Modal.Footer>
               <Button variant="secondary">Close</Button>
             </Modal.Footer>
+          </Modal>
+          <Modal
+            show={this.state.wordSourceSelector}
+            onHide={() => {
+              this.setState({ wordSourceSelector: false });
+            }}
+          >
+            <Modal.Body>
+              <WordSourceEditor
+                sources={this.state.wordSources}
+                submit={(sources) => {}}
+              ></WordSourceEditor>
+            </Modal.Body>
           </Modal>
           {this.submitClue()}
           {this.submitGuess()}

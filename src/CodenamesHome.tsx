@@ -1,11 +1,12 @@
 import axios from "axios";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   Button,
   Card,
   CardGroup,
   Col,
   Container,
+  Form,
   Modal,
   Table,
 } from "react-bootstrap";
@@ -17,11 +18,17 @@ import socket from "./socket";
 import { X, XLg } from "react-bootstrap-icons";
 import { BootswatchSelect } from "react-bootswatch-select";
 import { ThemeSelector } from "./ThemeSelector";
+import {
+  Source,
+  WordSourceEditor,
+  WordSourceEditorProps,
+} from "./WordSourceEditor";
 
 export function CodeNamesHome() {
   let initialGames = useLoaderData() as any[];
   const [currGames, setGames] = useState(initialGames);
   const [newGame, setNewGame] = useState(false);
+  const [wordSources, setWordSources] = useState([]);
   const [deleteGame, setDeleteGame] = useState<{
     name: string;
     id: string;
@@ -101,6 +108,15 @@ export function CodeNamesHome() {
                   <Card
                     style={style}
                     onClick={() => {
+                      axios
+                        .get(BASE_URL + "/api/wordsource/default")
+                        .then((response) => {
+                          console.log(response.data);
+                          if (!response.data) {
+                            return;
+                          }
+                          setWordSources(response.data);
+                        });
                       setNewGame(true);
                     }}
                   >
@@ -152,24 +168,49 @@ export function CodeNamesHome() {
           }}
         >
           <Modal.Body>
-            <WordForm
-              submit={(name: string) => {
+            <NewGameForm
+              submit={(name: string, sources: Source[]) => {
                 setNewGame(false);
                 axios
                   .post(BASE_URL + "/api/codenames/new", {
                     name: name,
+                    source: sources,
                   })
                   .then((response) => {
                     console.log(response.data);
                   });
               }}
-            ></WordForm>
+              sources={wordSources}
+            ></NewGameForm>
           </Modal.Body>
         </Modal>
       </div>
     </div>
   );
 }
+
+function NewGameForm(
+  props: {
+    sources: Source[];
+    submit: (name: string, sources: Source[]) => void;
+  } & React.FormHTMLAttributes<HTMLFormElement>
+) {
+  const submit = props.submit;
+  const nameRef = useRef<any>();
+  const wseProps = {
+    ...props,
+    submit: (sources: Source[]) => {
+      const name = nameRef.current?.value;
+      submit(name, sources);
+    },
+  };
+  return (
+    <WordSourceEditor {...wseProps}>
+      <Form.Control ref={nameRef} type="text"></Form.Control>
+    </WordSourceEditor>
+  );
+}
+
 const classes = ["cn-default", "cn-red", "cn-blue", "cn-gray", "cn-black"];
 
 function MiniTable(props: any) {
