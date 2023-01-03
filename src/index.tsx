@@ -16,6 +16,8 @@ import {
   Link,
 } from "react-router-dom";
 import { CodeNamesHome } from "./CodenamesHome";
+import DecryptoHome from "./DecryptoHome";
+import Decrypto from "./Decrypto";
 const router = createBrowserRouter(
   createRoutesFromElements([
     <Route path="/" element={<BigWordHome />}></Route>,
@@ -32,6 +34,20 @@ const router = createBrowserRouter(
       element={<CodeNames></CodeNames>}
       loader={({ params }: { params: any }) => {
         return fetch(BASE_URL + "/api/codenames/" + params.id);
+      }}
+    ></Route>,
+    <Route
+      path="decrypto"
+      element={<DecryptoHome></DecryptoHome>}
+      loader={async () => {
+        return fetch(BASE_URL + "/api/decrypto/games");
+      }}
+    ></Route>,
+    <Route
+      path="decrypto/:id"
+      element={<Decrypto></Decrypto>}
+      loader={({ params }: { params: any }) => {
+        return fetch(BASE_URL + "/api/decrypto/" + params.id);
       }}
     ></Route>,
   ])

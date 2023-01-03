@@ -10,6 +10,7 @@ export function globalNavbar() {
     <Nav className="me-auto">
       <Nav.Link href="/">Home</Nav.Link>
       <Nav.Link href="/codenames">Codenames</Nav.Link>
+      <Nav.Link href="/decrypto">Decrypto</Nav.Link>
       <Nav.Link href="/profile">Profile</Nav.Link>
     </Nav>
   );
