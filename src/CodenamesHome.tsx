@@ -16,8 +16,6 @@ import { BASE_URL } from "./Env";
 import WordForm from "./WordForm";
 import socket from "./socket";
 import { X, XLg } from "react-bootstrap-icons";
-import { BootswatchSelect } from "react-bootswatch-select";
-import { ThemeSelector } from "./ThemeSelector";
 import {
   Source,
   WordSourceEditor,

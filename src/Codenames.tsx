@@ -84,7 +84,6 @@ export function CodeNames(props: any) {
   }
 
   const { show } = useContextMenu({ id: menuId });
-  console.log("colors: " + colors.toString());
   const [team1, team2] = useMemo(() => {
     let team1 = [];
     let team2 = [];

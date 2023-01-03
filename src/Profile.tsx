@@ -1,28 +1,15 @@
-import socket from "./socket";
 import Button from "react-bootstrap/Button";
 import Form from "react-bootstrap/Form";
 import { useState } from "react";
 import { MyNavbar } from "./common";
-const savedDN = localStorage.getItem("name");
-export const defaultUN = getSavedUN();
-
-function getSavedUN() {
-  const savedUN = localStorage.getItem("username");
-  if (savedUN) {
-    return savedUN;
-  }
-  const random = randomUsername();
-  localStorage.setItem("username", random);
-  return random;
-}
-
-export const defaultDN = savedDN ? savedDN : "Player";
-export let username = defaultUN;
-export let name = defaultDN;
-socket.emit("login", {
-  username: username,
-  displayName: name,
-});
+import socket, {
+  defaultDN,
+  defaultUN,
+  displayname,
+  setDisplayname,
+  setUsername,
+  username,
+} from "./socket";
 
 export default function ProfilePage() {
   const [userName, setUserName] = useState(defaultUN);
@@ -35,14 +22,14 @@ export default function ProfilePage() {
         <Form
           onSubmit={(event) => {
             if (userName != username) {
-              username = userName;
+              setUsername(userName);
               socket.emit("login", {
                 username: username,
                 displayName: displayName,
               });
               localStorage.setItem("username", username);
-            } else if (name != displayName) {
-              name = displayName;
+            } else if (displayname != displayName) {
+              setDisplayname(displayName);
               localStorage.setItem("name", displayName);
               socket.emit("change name", userName);
             }
@@ -80,8 +67,4 @@ export default function ProfilePage() {
       </div>
     </div>
   );
-}
-
-function randomUsername() {
-  return "user" + Math.floor(Math.random() * 100000);
 }
