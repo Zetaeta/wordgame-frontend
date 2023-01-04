@@ -103,6 +103,8 @@ export function Decrypto(props: any) {
     } else {
       content = <h2>Need more players to start game.</h2>;
     }
+  } else if (status.myStatus === "lateJoin") {
+    content = <h1>The game has already started. Choose a team to join:</h1>;
   } else {
     content = (
       <>
@@ -166,6 +168,17 @@ export function Decrypto(props: any) {
       </>
     );
   }
+  function LateJoinButton({ team }: { team: number }) {
+    return (
+      <Button
+        onClick={() => {
+          send("lateJoin", { team: team });
+        }}
+      >
+        Join team {team + 1}
+      </Button>
+    );
+  }
 
   return (
     <div>
@@ -177,12 +190,18 @@ export function Decrypto(props: any) {
           <Row>
             {" "}
             <Col>
-              Red team
+              Team 1
               <PlayerList players={teams[0]} />
+              {status.myStatus === "lateJoin" && (
+                <LateJoinButton team={0}></LateJoinButton>
+              )}
             </Col>
             <Col>
               Blue team
               <PlayerList players={teams[1]}></PlayerList>
+              {status.myStatus === "lateJoin" && (
+                <LateJoinButton team={1}></LateJoinButton>
+              )}
             </Col>
           </Row>
           {status.phase === Phase.PreStart && (
@@ -473,7 +492,7 @@ function WordStand({ words, enemy }: { words: string[]; enemy?: boolean }) {
           {words &&
             words.map((word, i) => {
               return (
-                <Col className="d-flex flex-column">
+                <Col className="d-flex flex-column" key={i.toString()}>
                   <Card
                     className={
                       "  h-100   text-center  shadow-sm text border-dark border border-3 " +
