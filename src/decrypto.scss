@@ -1,0 +1,27 @@
+@import "../node_modules/bootstrap/scss/functions";
+@import "~bootstrap/scss/variables";
+.history-normal {
+  background-color: $teal-200;
+}
+.history-hit {
+  background-color: $orange-400;
+}
+.history-fail {
+  background-color: $yellow-400;
+}
+.history-double {
+  background-color: $red-500;
+}
+.history-info {
+  font-size: 0.9rem;
+}
+.w-60 {
+  width: 60% !important;
+}
+
+.w-625 {
+  width: 62.5% !important;
+}
+.r-flex {
+  flex-direction: row-reverse;
+}

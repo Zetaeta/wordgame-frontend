@@ -12,8 +12,9 @@ import { Menu, Item, useContextMenu, Separator } from "react-contexify";
 import "react-contexify/dist/ReactContexify.css";
 import socket from "./socket";
 import { EyeFill, Shuffle } from "react-bootstrap-icons";
-import { Button, Card, Table } from "react-bootstrap";
-
+import { Badge, Button, Card, Collapse, Table } from "react-bootstrap";
+import "./decrypto.scss";
+import { Textfit } from "react-textfit";
 // export class CodeNames extends React.Component {}
 const menuId = "colorMenu";
 const teamNames = ["Unassigned", "Red", "Blue", "Neutral", "Assassin"];
@@ -49,7 +50,12 @@ export function Decrypto(props: any) {
   const [teams, setTeams] = useState([[], []]);
   // const [words, setWords] = useState([]);
   const [status, setStatus] = useState<GameState>(defaultState());
-  const [history, setHistory] = useState({ team: [], enemy: [] });
+  const [history, setHistory] = useState({
+    team: [],
+    enemy: [],
+  });
+  const [showHist1, setShowHist1] = useState(true);
+  const [showHist2, setShowHist2] = useState(true);
   const words = status?.words;
   useEffect(() => {
     console.log("sending join message for id " + id);
@@ -99,43 +105,65 @@ export function Decrypto(props: any) {
     }
   } else {
     content = (
-      <div>
-        <div className="w-75 float-end">
-          <History history={history.enemy}></History>
-        </div>{" "}
-        <div className="w-75 float-start">
+      <>
+        <div className="w-100 ">
           <Row className="g-1">
-            {words &&
-              words.map((word) => {
-                return (
-                  <Col>
-                    <CodeWord word={word}></CodeWord>
-                  </Col>
-                );
-              })}
+            <Col className="col-4"></Col>
+            <Col
+              onClick={() => {
+                setShowHist1(!showHist1);
+              }}
+            >
+              <WordStand words={["?", "?", "?", "?"]} enemy></WordStand>
+            </Col>
           </Row>
-          <History history={history.team}></History>{" "}
-          {status.ourClues?.length ? (
-            <p>clues: {status.ourClues.toString()}</p>
-          ) : null}
-          {status.theirGuess?.length ? (
-            <p>Enemy guess: {status.theirGuess.toString()}</p>
-          ) : null}
-          {status.myStatus == "teamGuess" && (
-            <GuessForm send={send}></GuessForm>
-          )}
-          {status.theirClues?.length > 0 && (
-            <p>Enemy clues: {status.theirClues.toString()}</p>
-          )}
-          {status.myStatus == "enemyGuess" && (
-            <GuessForm send={send} enemy></GuessForm>
-          )}
-          {status.myStatus == "clues" && <CluesForm send={send}></CluesForm>}
+          <Collapse in={showHist1}>
+            <div>
+              <History history={history.enemy} reverse></History>
+            </div>
+          </Collapse>
+        </div>{" "}
+        <div className="w-100 ">
+          <Row className="g-1 ">
+            <Col
+              className="col-8"
+              onClick={() => {
+                setShowHist2(!showHist2);
+              }}
+            >
+              <WordStand words={words} />
+            </Col>
+            <Col className="d-flex flex-column justify-content-center align-items-center">
+              {status.key && <Key gameKey={status.key} />}
+            </Col>
+          </Row>
         </div>
-        <div className="float-end w-25">
-          {status.key && <Key gameKey={status.key} />}
-        </div>
-      </div>
+        <Collapse in={showHist2}>
+          <div style={{ height: "max-content" }}>
+            <History history={history.team}></History>
+          </div>
+        </Collapse>{" "}
+        {status.ourClues?.length ? (
+          <p>clues: {status.ourClues.toString()}</p>
+        ) : null}
+        {status.theirGuess?.length ? (
+          <p>Enemy guess: {keyString(status.theirGuess)}</p>
+        ) : null}
+        {status.myStatus == "teamGuess" && <GuessForm send={send}></GuessForm>}
+        {status.theirClues?.length > 0 && (
+          <p>Enemy clues: {status.theirClues.toString()}</p>
+        )}
+        {status.myStatus == "enemyGuess" && (
+          <GuessForm send={send} enemy></GuessForm>
+        )}
+        {status.myStatus == "clues" && (
+          <CluesForm
+            gameKey={status.key as number[]}
+            send={send}
+            words={words}
+          ></CluesForm>
+        )}
+      </>
     );
   }
 
@@ -143,9 +171,9 @@ export function Decrypto(props: any) {
     <div>
       {" "}
       <MyNavbar></MyNavbar>
-      <div className="d-flex flex-column min-vh-100 justify-content-center  ">
-        {content}
-        <Container>
+      <Container>
+        <div className="d-flex flex-column min-vh-100 justify-content-center  ">
+          {content}
           <Row>
             {" "}
             <Col>
@@ -166,8 +194,8 @@ export function Decrypto(props: any) {
               <Shuffle></Shuffle>
             </Button>
           )}
-        </Container>
-      </div>
+        </div>
+      </Container>
     </div>
   );
 }
@@ -176,34 +204,115 @@ function keyString(key: number[]) {
   return key.map((k) => k + 1).toString();
 }
 
-function History({ history }: any) {
+// const historyColors = [
+//   "history-normal",
+//   "history-hit",
+//   "history-fail",
+//   "history-both",
+// ];
+const historyColors = ["bg-primary", "bg-success", "bg-warning", "bg-danger"];
+
+function History({ history, reverse }: any) {
   if (history.length == 0) {
     return null;
   }
   return (
-    <>
+    <div>
       {history.map((entry: any) => {
-        return (
-          <Row className="border w-100 g-1">
-            {entry.table.map((clue: string | null) => {
-              return <Col className="border">{clue}</Col>;
-            })}
-            <Col className="col-2">
-              <div>Key: {keyString(entry.key)}</div>
-              <div>Enemy Guess: {keyString(entry.enemyGuess)}</div>
-              <div>Team Guess: {keyString(entry.teamGuess)}</div>
-            </Col>
-          </Row>
-        );
+        return <HistoryLine entry={entry} reverse={reverse}></HistoryLine>;
       })}
-    </>
+    </div>
   );
 }
 
-function GuessForm(props: {
-  enemy?: boolean;
-  send: (msgType: string, data: any) => void;
-}) {
+const badgeClass = "float-end";
+
+function HistoryLine({ entry, reverse }: { entry: any; reverse: boolean }) {
+  const [expand, setExpand] = useState(false);
+  let color = historyColors[0];
+  if (entry.enemyRight) {
+    if (entry.teamWrong) {
+      color = historyColors[3];
+    } else {
+      color = historyColors[1];
+    }
+  } else if (entry.teamWrong) {
+    color = historyColors[2];
+  }
+  color = color + " bg-opacity-50";
+  const info = (
+    <Col>
+      <div className={reverse ? " float-end" : ""}>
+        <Collapse in={expand} dimension="width">
+          <div>
+            <div
+              className={"history-info border-end px-1 " + color}
+              style={{
+                //"25vmin"
+                width: "8em",
+              }}
+            >
+              <div>
+                Key:{" "}
+                <Badge bg="dark" className={badgeClass}>
+                  {keyString(entry.key)}
+                </Badge>
+              </div>
+              <div>
+                Enemy:{" "}
+                <Badge
+                  bg={entry.enemyRight ? "success" : "danger"}
+                  className={badgeClass}
+                >
+                  {keyString(entry.enemyGuess)}
+                </Badge>
+              </div>
+              <div>
+                Guess:{" "}
+                <Badge
+                  bg={entry.teamWrong ? "danger" : "success"}
+                  className={badgeClass}
+                >
+                  {keyString(entry.teamGuess)}
+                </Badge>
+              </div>
+            </div>
+          </div>
+        </Collapse>
+      </div>
+    </Col>
+  );
+  return (
+    <Row
+      onClick={() => {
+        setExpand(!expand);
+      }}
+      className="h-100 g-0"
+    >
+      {reverse ? info : null}
+      <Col className={"col-8 " + color}>
+        <Row className={"border-bottom w-100 h-100 g-1 bg-opacity-50 mt-0 "}>
+          {entry.table.map((clue: string | null) => {
+            return (
+              <Col
+                className={
+                  "border-end h3 text-center d-flex flex-column justify-content-center col-3 "
+                }
+              >
+                {clue}
+              </Col>
+            );
+          })}
+        </Row>
+      </Col>
+      {reverse ? null : info}
+    </Row>
+  );
+}
+
+type SendFn = (msgType: string, data: any) => void;
+
+function GuessForm(props: { enemy?: boolean; send: SendFn }) {
   const entriesRef = useRef(Array(3));
   function onSubmit(event: any) {
     event.preventDefault();
@@ -235,7 +344,14 @@ function GuessForm(props: {
     </Form>
   );
 }
-function CluesForm(props: { send: (msgType: string, data: any) => void }) {
+
+interface CluesFormProps {
+  send: SendFn;
+  words: string[];
+  gameKey: number[];
+}
+
+function CluesForm(props: CluesFormProps) {
   const entriesRef = useRef(Array(3));
   function onSubmit(event: any) {
     event.preventDefault();
@@ -247,23 +363,33 @@ function CluesForm(props: { send: (msgType: string, data: any) => void }) {
     props.send(messageType, { clues: finalized });
   }
   return (
-    <Form onSubmit={onSubmit} className="text-center">
-      <Form.Group as={Row} className="mb-3">
-        {range(3).map((i) => {
-          return (
-            <Col key={i.toString()}>
-              <Form.Control
-                type="text"
-                ref={(el: any) => (entriesRef.current[i] = el)}
-              ></Form.Control>
-            </Col>
-          );
-        })}
-      </Form.Group>
-      <Button type="submit" value="Submit">
-        Submit
-      </Button>
-    </Form>
+    <div className="mt-2">
+      <h3 className="text-center">Enter clues:</h3>
+      <Form onSubmit={onSubmit} className="text-center">
+        <Form.Group as={Row} className="mb-3">
+          {range(3).map((i) => {
+            return (
+              <Col key={i.toString()}>
+                <Form.Label>
+                  <span className="h5">{props.gameKey[i] + 1}</span>. Clue for:{" "}
+                  <span className="fw-bold">
+                    {" "}
+                    {props.words[props.gameKey[i]]}
+                  </span>
+                </Form.Label>
+                <Form.Control
+                  type="text"
+                  ref={(el: any) => (entriesRef.current[i] = el)}
+                ></Form.Control>
+              </Col>
+            );
+          })}
+        </Form.Group>
+        <Button type="submit" value="Submit">
+          Submit
+        </Button>
+      </Form>
+    </div>
   );
 }
 
@@ -277,10 +403,6 @@ enum Phase {
   TeamGuess,
 }
 
-const YELLOW = Color.rgb(0xff, 0xe0, 0x82);
-const RED = Color.rgb(0xf4, 0x43, 0x36);
-const BLUE = Color.rgb(0x1e, 0x88, 0xe5);
-const GRAY = Color.rgb(0xd6, 0xd6, 0xd6);
 const BLACK = Color.rgb(0x21, 0x21, 0x21);
 
 interface Player {
@@ -311,7 +433,7 @@ function PlayerList({ players }: { players: Player[] }) {
 function Key({ gameKey }: { gameKey: number[] }) {
   const word = gameKey.map((k) => k + 1).toString();
   const color = BLACK;
-  return (
+  const old = (
     <Row className="px-2">
       <Col className="col-3 h3 my-auto">Key: </Col>
       <Col>
@@ -334,5 +456,55 @@ function Key({ gameKey }: { gameKey: number[] }) {
       </Col>
     </Row>
   );
+  return (
+    <h1 className="display-4">
+      Key: <Badge bg="dark">{word}</Badge>
+    </h1>
+  );
 }
 export default Decrypto;
+
+function WordStand({ words, enemy }: { words: string[]; enemy?: boolean }) {
+  const color = enemy ? "bg-danger" : "bg-primary";
+  return (
+    <Card className="bg-secondary bg-opacity-25 mt-4 shadow">
+      <Card.Body className="px-1">
+        <Row className="row-cols-4 g-1">
+          {words &&
+            words.map((word, i) => {
+              return (
+                <Col className="d-flex flex-column">
+                  <Card
+                    className={
+                      "  h-100   text-center  shadow-sm text border-dark border border-3 " +
+                      color
+                    }
+                    style={
+                      {
+                        // maxWidth: "16rem",
+                        // backgroundColor: color.string(),
+                        // minHeight: "5rem",
+                      }
+                    }
+                  >
+                    <Card.Body
+                      className={
+                        "px-1 py-2 d-flex flex-column h2 justify-content-center text-codeword-inverted fw-bold"
+                      }
+                    >
+                      <Textfit mode="single" max={30}>
+                        {word}
+                      </Textfit>
+                    </Card.Body>
+                  </Card>
+                  <div>
+                    <h2 className="text-center">{i + 1}</h2>
+                  </div>
+                </Col>
+              );
+            })}
+        </Row>
+      </Card.Body>
+    </Card>
+  );
+}

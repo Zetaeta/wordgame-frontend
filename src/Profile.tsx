@@ -31,7 +31,7 @@ export default function ProfilePage() {
             } else if (displayname != displayName) {
               setDisplayname(displayName);
               localStorage.setItem("name", displayName);
-              socket.emit("change name", userName);
+              socket.emit("change name", { displayName: displayName });
             }
             event.preventDefault();
           }}
