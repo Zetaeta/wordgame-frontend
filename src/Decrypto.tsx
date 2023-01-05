@@ -11,7 +11,12 @@ import { useParams } from "react-router-dom";
 import { Menu, Item, useContextMenu, Separator } from "react-contexify";
 import "react-contexify/dist/ReactContexify.css";
 import socket from "./socket";
-import { EyeFill, Shuffle } from "react-bootstrap-icons";
+import {
+  ChevronLeft,
+  ChevronRight,
+  EyeFill,
+  Shuffle,
+} from "react-bootstrap-icons";
 import { Badge, Button, Card, Collapse, Table } from "react-bootstrap";
 import "./decrypto.scss";
 import { Textfit } from "react-textfit";
@@ -95,7 +100,8 @@ export function Decrypto(props: any) {
   }
 
   let content;
-  if (status.phase == Phase.PreStart) {
+  const preStart = status.phase === Phase.PreStart;
+  if (preStart) {
     const startButton = (
       <Button
         onClick={() => {
@@ -136,35 +142,52 @@ export function Decrypto(props: any) {
           </Collapse>
         </div>{" "}
         <div className="w-100 mt-4">
-          <Row className="g-1 ">
+          <Row className="g-1 justify-content-start" md={2} xs={1}>
             <Col
               xs={10}
               md={8}
+              className="align-self-start"
               onClick={() => {
                 setShowHist2(!showHist2);
               }}
             >
               <WordStand words={words} />
             </Col>
-            <Col className="d-flex flex-column justify-content-center align-items-center order-first order-md-last">
-              {status.key && <Key gameKey={status.key} />}
-            </Col>
+            {status.key && (
+              <Col className="d-flex flex-column justify-content-center align-items-center order-first order-md-last">
+                <Key gameKey={status.key} />
+              </Col>
+            )}
           </Row>
+          <Collapse in={showHist2}>
+            <div
+              style={
+                {
+                  //height: "max-content"
+                }
+              }
+            >
+              <History history={history.team}></History>
+            </div>
+          </Collapse>{" "}
         </div>
-        <Collapse in={showHist2}>
-          <div style={{ height: "max-content" }}>
-            <History history={history.team}></History>
-          </div>
-        </Collapse>{" "}
         {status.ourClues?.length ? (
-          <p>clues: {status.ourClues.toString()}</p>
+          <h1 className="text-center display-5">
+            Clues:{" "}
+            <span className="fw-bold">{cluesString(status.ourClues)}</span>
+          </h1>
         ) : null}
         {status.theirGuess?.length ? (
-          <p>Enemy guess: {keyString(status.theirGuess)}</p>
+          <h1 className="text-center display-5">
+            Enemy guess: <Badge bg="dark">{keyString(status.theirGuess)}</Badge>
+          </h1>
         ) : null}
         {status.myStatus == "teamGuess" && <GuessForm send={send}></GuessForm>}
         {status.theirClues?.length > 0 && (
-          <p>Enemy clues: {status.theirClues.toString()}</p>
+          <h1 className="text-center display-5">
+            Enemy clues:{" "}
+            <span className="fw-bold">{cluesString(status.theirClues)}</span>.
+          </h1>
         )}
         {status.myStatus == "enemyGuess" && (
           <GuessForm send={send} enemy></GuessForm>
@@ -196,20 +219,30 @@ export function Decrypto(props: any) {
       {" "}
       <MyNavbar></MyNavbar>
       <Container>
-        <div className="d-flex flex-column min-vh-100 justify-content-center  ">
+        <div className="d-flex flex-column min-vh-100 justify-content-evenly align-items-center ">
           {content}
-          <Row>
+          <Row className="w-100 justify-content-center">
             {" "}
-            <Col>
+            <Col xs="6" md="4" xl="3">
               Team 1
-              <PlayerList players={teams[0]} />
+              <PlayerList
+                players={teams[0]}
+                changeable={preStart}
+                team={0}
+                send={send}
+              />
               {status.myStatus === "lateJoin" && (
                 <LateJoinButton team={0}></LateJoinButton>
               )}
             </Col>
-            <Col>
-              Blue team
-              <PlayerList players={teams[1]}></PlayerList>
+            <Col xs="6" md="4" xl="3">
+              Team 2
+              <PlayerList
+                players={teams[1]}
+                changeable={preStart}
+                team={1}
+                send={send}
+              ></PlayerList>
               {status.myStatus === "lateJoin" && (
                 <LateJoinButton team={1}></LateJoinButton>
               )}
@@ -228,6 +261,10 @@ export function Decrypto(props: any) {
       </Container>
     </div>
   );
+}
+
+function cluesString(clues: string[]) {
+  return `${clues[0]}, ${clues[1]}, ${clues[2]}`;
 }
 
 function Scoreboard({ score }: any) {
@@ -371,7 +408,9 @@ function HistoryLine({ entry, reverse }: { entry: any; reverse: boolean }) {
                 }
                 key={i.toString()}
               >
-                {clue}
+                <Textfit mode="single" max={25}>
+                  {clue}
+                </Textfit>
               </Col>
             );
           })}
@@ -397,23 +436,26 @@ function GuessForm(props: { enemy?: boolean; send: SendFn }) {
     props.send(messageType, { guess: finalized });
   }
   return (
-    <Form onSubmit={onSubmit} className="text-center">
-      <Form.Group as={Row} className="mb-3">
-        {range(3).map((i) => {
-          return (
-            <Col key={i.toString()}>
-              <Form.Control
-                type="number"
-                ref={(el: any) => (entriesRef.current[i] = el)}
-              ></Form.Control>
-            </Col>
-          );
-        })}
-      </Form.Group>
-      <Button type="submit" value="Submit">
-        Submit
-      </Button>
-    </Form>
+    <div>
+      <h3>Enter Guess:</h3>
+      <Form onSubmit={onSubmit} className="text-center">
+        <Form.Group as={Row} className="mb-3">
+          {range(3).map((i) => {
+            return (
+              <Col key={i.toString()}>
+                <Form.Control
+                  type="number"
+                  ref={(el: any) => (entriesRef.current[i] = el)}
+                ></Form.Control>
+              </Col>
+            );
+          })}
+        </Form.Group>
+        <Button type="submit" value="Submit">
+          Submit
+        </Button>
+      </Form>
+    </div>
   );
 }
 
@@ -480,9 +522,20 @@ const BLACK = Color.rgb(0x21, 0x21, 0x21);
 interface Player {
   name: string;
   role: boolean;
+  username: string;
 }
 
-function PlayerList({ players }: { players: Player[] }) {
+function PlayerList({
+  changeable,
+  players,
+  team,
+  send,
+}: {
+  changeable: boolean;
+  players: Player[];
+  team: number;
+  send: SendFn;
+}) {
   let playerNo = 0;
   return (
     <ul className="list-group">
@@ -490,10 +543,29 @@ function PlayerList({ players }: { players: Player[] }) {
         ++playerNo;
         return (
           <li key={playerNo.toString()} className="list-group-item">
-            {" "}
+            {changeable && team === 1 ? (
+              <Button
+                variant="link"
+                onClick={() => {
+                  send("changeTeam", { player: player.username, team: 0 });
+                }}
+              >
+                <ChevronLeft></ChevronLeft>
+              </Button>
+            ) : null}{" "}
             {player.name}
             {player.role ? (
               <EyeFill className="d-inline-block float-end"></EyeFill>
+            ) : null}
+            {changeable && team === 0 ? (
+              <Button
+                variant="link"
+                onClick={() => {
+                  send("changeTeam", { player: player.username, team: 1 });
+                }}
+              >
+                <ChevronRight></ChevronRight>
+              </Button>
             ) : null}
           </li>
         );
