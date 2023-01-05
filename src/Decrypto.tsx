@@ -28,9 +28,15 @@ interface GameState {
   ourClues?: string[];
   theirClues: string[];
   theirGuess: number[];
+  score: { team: Score; enemy: Score };
+}
+interface Score {
+  hits: number;
+  misses: number;
 }
 
 function defaultState() {
+  const zeroScore = { hits: 0, misses: 0 };
   return {
     words: [],
     phase: Phase.PreStart,
@@ -38,6 +44,7 @@ function defaultState() {
     ourClues: [],
     theirClues: [],
     theirGuess: [],
+    score: { team: zeroScore, enemy: { ...zeroScore } },
   };
 }
 
@@ -109,12 +116,15 @@ export function Decrypto(props: any) {
     content = (
       <>
         <div className="w-100 ">
-          <Row className="g-1">
-            <Col className="col-4"></Col>
+          <Row className="g-1 justify-content-end" md={2} xs={1}>
+            <Col className=" d-flex flex-column justify-content-center" md={4}>
+              <Scoreboard score={status.score}></Scoreboard>
+            </Col>
             <Col
               onClick={() => {
                 setShowHist1(!showHist1);
               }}
+              className="col-md-8 col-10 align-self-end"
             >
               <WordStand words={["?", "?", "?", "?"]} enemy></WordStand>
             </Col>
@@ -125,17 +135,18 @@ export function Decrypto(props: any) {
             </div>
           </Collapse>
         </div>{" "}
-        <div className="w-100 ">
+        <div className="w-100 mt-4">
           <Row className="g-1 ">
             <Col
-              className="col-8"
+              xs={10}
+              md={8}
               onClick={() => {
                 setShowHist2(!showHist2);
               }}
             >
               <WordStand words={words} />
             </Col>
-            <Col className="d-flex flex-column justify-content-center align-items-center">
+            <Col className="d-flex flex-column justify-content-center align-items-center order-first order-md-last">
               {status.key && <Key gameKey={status.key} />}
             </Col>
           </Row>
@@ -219,6 +230,41 @@ export function Decrypto(props: any) {
   );
 }
 
+function Scoreboard({ score }: any) {
+  if (!score) {
+    return null;
+  }
+  return (
+    <Card className="text-bg-warning h-100">
+      <Card.Body className="py-2">
+        <div className="h6 text-center">
+          <Row className=" text-break">
+            <Col className="col-3"></Col>
+            <Col>
+              Hits
+              <br /> (2 to win)
+            </Col>
+            <Col>
+              Misses
+              <br /> (2 to lose)
+            </Col>
+          </Row>
+          <Row>
+            <Col className="col-3 text-start ps-1 pe-0">Allies:</Col>
+            <Col className="text-success h4">{score.team.hits}</Col>
+            <Col className="text-danger h4">{score.team.misses}</Col>
+          </Row>
+          <Row>
+            <Col className="col-3 text-start ps-1 p-0">Enemies:</Col>
+            <Col className="text-success h4">{score.enemy.hits}</Col>
+            <Col className="text-danger h4">{score.enemy.misses}</Col>
+          </Row>
+        </div>
+      </Card.Body>
+    </Card>
+  );
+}
+
 function keyString(key: number[]) {
   return key.map((k) => k + 1).toString();
 }
@@ -237,14 +283,20 @@ function History({ history, reverse }: any) {
   }
   return (
     <div>
-      {history.map((entry: any) => {
-        return <HistoryLine entry={entry} reverse={reverse}></HistoryLine>;
+      {history.map((entry: any, i: number) => {
+        return (
+          <HistoryLine
+            entry={entry}
+            reverse={reverse}
+            key={i.toString()}
+          ></HistoryLine>
+        );
       })}
     </div>
   );
 }
 
-const badgeClass = "float-end";
+const badgeClass = "text-end d-inline-block ms-md-auto ms-2 me-1";
 
 function HistoryLine({ entry, reverse }: { entry: any; reverse: boolean }) {
   const [expand, setExpand] = useState(false);
@@ -268,17 +320,17 @@ function HistoryLine({ entry, reverse }: { entry: any; reverse: boolean }) {
               className={"history-info border-end px-1 " + color}
               style={{
                 //"25vmin"
-                width: "8em",
+                width: "fit-content",
               }}
             >
-              <div>
-                Key:{" "}
+              <div className="d-flex justify-content-between align-items-center">
+                <div className="d-none d-md-inline-block ">Key: </div>{" "}
                 <Badge bg="dark" className={badgeClass}>
                   {keyString(entry.key)}
                 </Badge>
               </div>
-              <div>
-                Enemy:{" "}
+              <div className="d-flex justify-content-between align-items-center">
+                <div className="d-none d-md-inline-block me-1">Enemy: </div>
                 <Badge
                   bg={entry.enemyRight ? "success" : "danger"}
                   className={badgeClass}
@@ -286,8 +338,8 @@ function HistoryLine({ entry, reverse }: { entry: any; reverse: boolean }) {
                   {keyString(entry.enemyGuess)}
                 </Badge>
               </div>
-              <div>
-                Guess:{" "}
+              <div className="d-flex justify-content-between align-items-center">
+                <div className="d-none d-md-inline-block ">Guess: </div>
                 <Badge
                   bg={entry.teamWrong ? "danger" : "success"}
                   className={badgeClass}
@@ -309,14 +361,15 @@ function HistoryLine({ entry, reverse }: { entry: any; reverse: boolean }) {
       className="h-100 g-0"
     >
       {reverse ? info : null}
-      <Col className={"col-8 " + color}>
+      <Col className={color} xs="10" md="8">
         <Row className={"border-bottom w-100 h-100 g-1 bg-opacity-50 mt-0 "}>
-          {entry.table.map((clue: string | null) => {
+          {entry.table.map((clue: string | null, i: number) => {
             return (
               <Col
                 className={
                   "border-end h3 text-center d-flex flex-column justify-content-center col-3 "
                 }
+                key={i.toString()}
               >
                 {clue}
               </Col>
@@ -486,7 +539,7 @@ export default Decrypto;
 function WordStand({ words, enemy }: { words: string[]; enemy?: boolean }) {
   const color = enemy ? "bg-danger" : "bg-primary";
   return (
-    <Card className="bg-secondary bg-opacity-25 mt-4 shadow">
+    <Card className="bg-secondary bg-opacity-25  shadow">
       <Card.Body className="px-1">
         <Row className="row-cols-4 g-1">
           {words &&
