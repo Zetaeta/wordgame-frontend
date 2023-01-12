@@ -1,7 +1,6 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
 import "./index.scss";
-import App from "./App";
 import { BigWordHome } from "./BigWord";
 import { CodeNames } from "./Codenames";
 import { BASE_URL } from "./Env";
@@ -13,7 +12,6 @@ import {
   createRoutesFromElements,
   RouterProvider,
   Route,
-  Link,
   useRouteError,
 } from "react-router-dom";
 import { CodeNamesHome } from "./CodenamesHome";

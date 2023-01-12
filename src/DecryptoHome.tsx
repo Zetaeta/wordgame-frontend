@@ -8,19 +8,13 @@ import {
   Container,
   Form,
   Modal,
-  Table,
 } from "react-bootstrap";
 import { useLoaderData } from "react-router-dom";
 import { MyNavbar } from "./common";
 import { BASE_URL } from "./Env";
-import WordForm from "./WordForm";
 import socket from "./socket";
-import { X, XLg } from "react-bootstrap-icons";
-import {
-  Source,
-  WordSourceEditor,
-  WordSourceEditorProps,
-} from "./WordSourceEditor";
+import { XLg } from "react-bootstrap-icons";
+import { Source, WordSourceEditor } from "./WordSourceEditor";
 
 export function DecryptoHome() {
   let initialGames = useLoaderData() as any[];

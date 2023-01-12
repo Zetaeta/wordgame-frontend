@@ -1,4 +1,4 @@
-import { SERVER_URL, IO_PORT, BASE_URL } from "./Env";
+import { SERVER_URL, IO_PORT } from "./Env";
 import { io } from "socket.io-client";
 const savedDN = localStorage.getItem("name");
 export const defaultUN = getSavedUN();

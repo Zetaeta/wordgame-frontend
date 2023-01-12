@@ -221,7 +221,7 @@ class BigWord extends React.Component<BigWordProps, BigWordState> {
                     name={name}
                     word={clue.word}
                     onClick={() => {
-                      if (this.state.phase == Phase.InspectClues) {
+                      if (this.state.phase === Phase.InspectClues) {
                         this.sendMsg(
                           Msg.ClueVis(clue.id, !(clue.shown as boolean))
                         );
@@ -311,7 +311,7 @@ class BigWord extends React.Component<BigWordProps, BigWordState> {
   }
 
   theGuess() {
-    if (this.state.phase != Phase.Complete) {
+    if (this.state.phase !== Phase.Complete) {
       return null;
     }
     return (
@@ -332,9 +332,9 @@ class BigWord extends React.Component<BigWordProps, BigWordState> {
   readyButton() {
     const phase = this.state.phase;
     if (
-      phase == Phase.Prelim ||
-      (phase == Phase.InspectClues && this.state.myRole == "clue") ||
-      phase == Phase.Complete
+      phase === Phase.Prelim ||
+      (phase === Phase.InspectClues && this.state.myRole === "clue") ||
+      phase === Phase.Complete
     ) {
       return (
         <Button onClick={() => this.sendMsg(Msg.Ready())} autoFocus>
@@ -415,8 +415,8 @@ class BigWord extends React.Component<BigWordProps, BigWordState> {
 
   submitClue() {
     if (
-      this.state.phase == Phase.InspectClues &&
-      this.state.myRole == "guess"
+      this.state.phase === Phase.InspectClues &&
+      this.state.myRole === "guess"
     ) {
       return <p>Waiting for players to inspect clues.</p>;
     }
@@ -536,7 +536,7 @@ class BigWord extends React.Component<BigWordProps, BigWordState> {
       let colors = this.state.colors;
       colors.set(msg.player, colorFromValue(msg.colour));
       this.setState({ colors: colors });
-    } else if (mType == "removed") {
+    } else if (mType === "removed") {
       this.props.logout();
     }
   }
@@ -579,7 +579,6 @@ function colorFromValue(val: number): Color {
   }
   let [b, g, r, a] = arr;
   return Color.rgb(r, g, b).alpha(a / 255);
-  return Color(c);
 }
 
 export type Clue = {

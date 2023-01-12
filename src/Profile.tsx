@@ -21,14 +21,14 @@ export default function ProfilePage() {
       <div className="d-flex flex-column min-vh-100 justify-content-center align-items-center ">
         <Form
           onSubmit={(event) => {
-            if (userName != username) {
+            if (userName !== username) {
               setUsername(userName);
               socket.emit("login", {
                 username: username,
                 displayName: displayName,
               });
               localStorage.setItem("username", username);
-            } else if (displayname != displayName) {
+            } else if (displayname !== displayName) {
               setDisplayname(displayName);
               localStorage.setItem("name", displayName);
               socket.emit("change name", { displayName: displayName });

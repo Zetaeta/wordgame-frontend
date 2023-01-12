@@ -1,14 +1,11 @@
-import { useLoaderData } from "react-router-dom";
+// import { useLoaderData } from "react-router-dom";
 import Form from "react-bootstrap/Form";
 import Col from "react-bootstrap/Col";
 import Row from "react-bootstrap/Row";
 import Container from "react-bootstrap/Container";
-import { useState, useEffect, useMemo, useRef } from "react";
-import CodeWord from "./CodeWord";
+import { useState, useEffect, useRef } from "react";
 import { MyNavbar } from "./common";
-import Color from "color";
 import { useParams } from "react-router-dom";
-import { Menu, Item, useContextMenu, Separator } from "react-contexify";
 import "react-contexify/dist/ReactContexify.css";
 import socket from "./socket";
 import {
@@ -17,13 +14,16 @@ import {
   EyeFill,
   Shuffle,
 } from "react-bootstrap-icons";
-import { Badge, Button, Card, Collapse, Table } from "react-bootstrap";
+import { Badge, Button, Card, Collapse } from "react-bootstrap";
 import "./decrypto.scss";
 import { Textfit } from "react-textfit";
 // export class CodeNames extends React.Component {}
-const menuId = "colorMenu";
-const teamNames = ["Unassigned", "Red", "Blue", "Neutral", "Assassin"];
-const teamClasses = ["cn-default", "cn-red", "cn-blue", "cn-gray", "cn-black"];
+enum Phase {
+  PreStart,
+  MakeClues,
+  EnemyGuess,
+  TeamGuess,
+}
 interface GameState {
   words: string[];
   phase: Phase;
@@ -56,8 +56,8 @@ function defaultState() {
 export function Decrypto(props: any) {
   const params = useParams();
   const id = params.id;
-  let gameData = useLoaderData() as any;
-  const [game, setGame] = useState(gameData);
+  // let gameData = useLoaderData() as any;
+  // const [game, setGame] = useState(gameData);
   // const [players, setPlayers] = useState<any[]>([]);
   const [teams, setTeams] = useState([[], []]);
   // const [words, setWords] = useState([]);
@@ -75,10 +75,10 @@ export function Decrypto(props: any) {
     console.log("sent");
 
     socket.on("dcmsg", (message) => {
-      if (message.msgType == "players") {
+      if (message.msgType === "players") {
         const teams = message.teams;
         setTeams(teams);
-      } else if (message.msgType == "status") {
+      } else if (message.msgType === "status") {
         delete message.msgType;
         setStatus(message);
       } else if (message.msgType === "history") {
@@ -154,7 +154,10 @@ export function Decrypto(props: any) {
               <WordStand words={words} />
             </Col>
             {status.key && (
-              <Col className="d-flex flex-column justify-content-center align-items-center order-first order-md-last">
+              <Col
+                className="d-flex flex-column justify-content-center align-items-center order-first order-md-last"
+                md={4}
+              >
                 <Key gameKey={status.key} />
               </Col>
             )}
@@ -182,17 +185,17 @@ export function Decrypto(props: any) {
             Enemy guess: <Badge bg="dark">{keyString(status.theirGuess)}</Badge>
           </h1>
         ) : null}
-        {status.myStatus == "teamGuess" && <GuessForm send={send}></GuessForm>}
+        {status.myStatus === "teamGuess" && <GuessForm send={send}></GuessForm>}
         {status.theirClues?.length > 0 && (
           <h1 className="text-center display-5">
             Enemy clues:{" "}
             <span className="fw-bold">{cluesString(status.theirClues)}</span>.
           </h1>
         )}
-        {status.myStatus == "enemyGuess" && (
+        {status.myStatus === "enemyGuess" && (
           <GuessForm send={send} enemy></GuessForm>
         )}
-        {status.myStatus == "clues" && (
+        {status.myStatus === "clues" && (
           <CluesForm
             gameKey={status.key as number[]}
             send={send}
@@ -315,7 +318,7 @@ function keyString(key: number[]) {
 const historyColors = ["bg-primary", "bg-success", "bg-warning", "bg-danger"];
 
 function History({ history, reverse }: any) {
-  if (history.length == 0) {
+  if (history.length === 0) {
     return null;
   }
   return (
@@ -510,14 +513,8 @@ function CluesForm(props: CluesFormProps) {
 function range(n: number) {
   return Array.from(Array(n).keys());
 }
-enum Phase {
-  PreStart,
-  MakeClues,
-  EnemyGuess,
-  TeamGuess,
-}
 
-const BLACK = Color.rgb(0x21, 0x21, 0x21);
+// const BLACK = Color.rgb(0x21, 0x21, 0x21);
 
 interface Player {
   name: string;
@@ -576,30 +573,7 @@ function PlayerList({
 
 function Key({ gameKey }: { gameKey: number[] }) {
   const word = gameKey.map((k) => k + 1).toString();
-  const color = BLACK;
-  const old = (
-    <Row className="px-2">
-      <Col className="col-3 h3 my-auto">Key: </Col>
-      <Col>
-        <Card
-          className={" h-100    text-center  shadow-sm text-codeword-inverted"}
-          style={{
-            // maxWidth: "16rem",
-            backgroundColor: color.string(),
-            // height: "5rem",
-          }}
-        >
-          <Card.Body
-            className={
-              "px-2 py-2 d-flex flex-column h1 justify-content-center text-codeword-inverted"
-            }
-          >
-            {word}
-          </Card.Body>
-        </Card>
-      </Col>
-    </Row>
-  );
+
   return (
     <h1 className="display-4">
       Key: <Badge bg="dark">{word}</Badge>

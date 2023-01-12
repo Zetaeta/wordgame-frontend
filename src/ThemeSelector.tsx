@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Col, Form, NavDropdown, Row } from "react-bootstrap";
+import { Col, Form, Row } from "react-bootstrap";
 
 export function ThemeSelector() {
   let defaultTheme = localStorage.getItem("theme");

@@ -24,7 +24,7 @@ export function CodeNames(props: any) {
   let gameData = useLoaderData() as any;
   const [showKey, setShowKey] = useState(false);
   const [hideCovered, setHideCovered] = useState(true);
-  const [game, setGame] = useState(gameData);
+  const [game] = useState(gameData);
   const [colors, setColors] = useState(gameData.colors);
   const [key, setKey] = useState(gameData.key);
   const [spymaster, setSpymaster] = useState(false);
@@ -89,7 +89,7 @@ export function CodeNames(props: any) {
     let team2 = [];
     console.log(players);
     for (let player of players) {
-      if (player.team == 2) {
+      if (player.team === 2) {
         team2.push(player);
       } else {
         team1.push(player);
@@ -115,6 +115,7 @@ export function CodeNames(props: any) {
 
   const displayInfo = useMemo(() => {
     return range(25).map(displayProps);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [colors, key, showKey, hideCovered, topKey]);
   const wordsByTeam = useMemo(() => {
     let base: number[][] = [[], [], [], [], []];
@@ -126,7 +127,7 @@ export function CodeNames(props: any) {
         return +displayInfo[a][1] - +displayInfo[b][1];
       })
     );
-  }, [displayInfo, words]);
+  }, [displayInfo]);
   if (listView) {
     gameBoard = (
       <Container>
@@ -134,7 +135,7 @@ export function CodeNames(props: any) {
           {wordsByTeam.map((wordInds, team) => {
             const list = wordInds.map((i) => {
               const hidden = displayInfo[i][1];
-              const invert = team == 4;
+              const invert = team === 4;
               return (
                 <li
                   className={
@@ -155,7 +156,7 @@ export function CodeNames(props: any) {
                 </li>
               );
             });
-            if (list.length == 0) {
+            if (list.length === 0) {
               return null;
             }
             // list.unshift(<li></li>);
@@ -190,7 +191,7 @@ export function CodeNames(props: any) {
                   cover={covered}
                   key={word}
                   color={color}
-                  invert={color == BLACK}
+                  invert={color === BLACK}
                   onClick={(e) => {
                     show({ event: e, props: { wordId: i } });
                     console.log("shown");
@@ -317,13 +318,6 @@ const BLACK = Color.rgb(0x21, 0x21, 0x21);
 
 function getColor(n: number) {
   return [YELLOW, RED, BLUE, GRAY, BLACK][n];
-}
-
-function testGames() {
-  return [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11].map((a) => ({
-    name: "game" + a,
-    id: a.toString(),
-  }));
 }
 
 export default CodeNames;
