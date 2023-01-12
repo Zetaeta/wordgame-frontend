@@ -1,4 +1,5 @@
-import { PlayerId, Player, Clue } from "./BigWord";
+/* eslint-disable @typescript-eslint/no-redeclare */
+import { PlayerId } from "./BigWord";
 export type Message = {
   msgtype: string;
 };
