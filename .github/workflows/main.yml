@@ -14,9 +14,9 @@ jobs:
         with:
           node-version: '19.2.0'
       - name: npm install
-        run: npm install
+        run: "npm install --force"
       - name: build
-        run: "npm run build --force"
+        run: npm run build
       - name: Deploy to Staging server
         uses: easingthemes/ssh-deploy@main
         env:
