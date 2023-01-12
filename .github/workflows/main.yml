@@ -16,7 +16,7 @@ jobs:
       - name: npm install
         run: npm install
       - name: build
-        run: npm run build
+        run: "npm run build --force"
       - name: Deploy to Staging server
         uses: easingthemes/ssh-deploy@main
         env:
