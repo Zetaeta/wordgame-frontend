@@ -19,7 +19,7 @@ export function globalNavbar() {
 export function MyNavbar(props: any) {
   return (
     <Navbar bg="primary" expand="sm">
-      <Container fluid>
+      <Container>
         <Navbar.Brand href="/">BigWord</Navbar.Brand>
         <Navbar.Toggle aria-controls="basic-navbar-nav" />
         {globalNavbar()}

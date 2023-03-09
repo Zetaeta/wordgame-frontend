@@ -6,7 +6,6 @@ import Modal from "react-bootstrap/Modal";
 import Dropdown from "react-bootstrap/Dropdown";
 import Navbar from "react-bootstrap/Navbar";
 import Nav from "react-bootstrap/Nav";
-import Container from "react-bootstrap/Container";
 import DropdownButton from "react-bootstrap/DropdownButton";
 import NavDropdown from "react-bootstrap/NavDropdown";
 import Color from "color";
@@ -15,7 +14,7 @@ import Word from "./Word";
 import { Message } from "./Message";
 import * as Msg from "./Message";
 import WordForm from "./WordForm";
-import { globalNavbar } from "./common";
+import { MyNavbar } from "./common";
 import {
   CaretRightFill,
   Clock,
@@ -140,65 +139,61 @@ class BigWord extends React.Component<BigWordProps, BigWordState> {
     return (
       <div>
         {" "}
-        <Navbar bg="primary" expand="lg">
-          <Container>
-            <Navbar.Brand>BigWord</Navbar.Brand>
-            {globalNavbar()}
-            <Navbar.Toggle aria-controls="basic-navbar-nav" />
-            <Navbar.Collapse id="basic-navbar-nav">
-              <Nav className="me-auto">
-                {" "}
-                <Nav.Link
-                  onClick={() =>
-                    this.sendMsg(Msg.NextPhase(Phase[this.state.phase]))
-                  }
-                >
-                  <FastForwardFill
-                    className="d-inline-block"
-                    size="2em"
-                  ></FastForwardFill>
-                  {
-                    // Next Phase
-                  }
-                </Nav.Link>{" "}
-                <Nav.Link
-                  onClick={() => {
-                    this.sendMsg(Msg.NextTurn());
-                  }}
-                >
-                  <SkipEndFill className="d-inline-block" size="2em" />
-                  {
-                    // Next Round
-                  }
-                </Nav.Link>
-                <Nav.Item>
-                  <NavDropdown title="Settings">
-                    <NavDropdown.Item
-                      onClick={() => {
-                        this.setState({ displayColorPicker: true });
-                      }}
-                    >
-                      Set colour
-                    </NavDropdown.Item>
-                    <NavDropdown.Item
-                      onClick={() => {
-                        axios
-                          .get(BASE_URL + "/api/wordsource/current")
-                          .then((response) => {
-                            console.log(response.data);
-                            this.setState({ wordSources: response.data });
-                          });
-                        this.setState({ wordSourceSelector: true });
-                      }}
-                    >
-                      Set word source
-                    </NavDropdown.Item>
-                  </NavDropdown>
-                </Nav.Item>
-              </Nav>
-            </Navbar.Collapse>
-          </Container>
-        </Navbar>
+        <MyNavbar>
+          <Navbar.Toggle aria-controls="basic-navbar-nav" />
+          <Navbar.Collapse id="basic-navbar-nav">
+            <Nav className="me-auto">
+              {" "}
+              <Nav.Link
+                onClick={() =>
+                  this.sendMsg(Msg.NextPhase(Phase[this.state.phase]))
+                }
+              >
+                <FastForwardFill
+                  className="d-inline-block"
+                  size="2em"
+                ></FastForwardFill>
+                {
+                  // Next Phase
+                }
+              </Nav.Link>{" "}
+              <Nav.Link
+                onClick={() => {
+                  this.sendMsg(Msg.NextTurn());
+                }}
+              >
+                <SkipEndFill className="d-inline-block" size="2em" />
+                {
+                  // Next Round
+                }
+              </Nav.Link>
+              <Nav.Item>
+                <NavDropdown title="Settings">
+                  <NavDropdown.Item
+                    onClick={() => {
+                      this.setState({ displayColorPicker: true });
+                    }}
+                  >
+                    Set colour
+                  </NavDropdown.Item>
+                  <NavDropdown.Item
+                    onClick={() => {
+                      axios
+                        .get(BASE_URL + "/api/wordsource/current")
+                        .then((response) => {
+                          console.log(response.data);
+                          this.setState({ wordSources: response.data });
+                        });
+                      this.setState({ wordSourceSelector: true });
+                    }}
+                  >
+                    Set word source
+                  </NavDropdown.Item>
+                </NavDropdown>
+              </Nav.Item>
+            </Nav>
+          </Navbar.Collapse>
+        </MyNavbar>
         <div className="d-flex flex-column min-vh-100 justify-content-center align-items-center ">
           {/*this.state.displayColorPicker ? (
             <ColorPicker initial={this.myColor()}></ColorPicker>
