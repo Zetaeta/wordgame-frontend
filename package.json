@@ -44,7 +44,8 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "load-bootswatch": "mkdir -p public/bootswatch/5.2.3/ && cp -r node_modules/bootswatch/dist/* public/bootswatch/5.2.3/"
   },
   "eslintConfig": {
     "extends": [
