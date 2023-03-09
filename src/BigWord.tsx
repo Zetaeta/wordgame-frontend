@@ -286,7 +286,14 @@ class BigWord extends React.Component<BigWordProps, BigWordState> {
               ></ColorPicker>
             </Modal.Body>
             <Modal.Footer>
-              <Button variant="secondary">Close</Button>
+              <Button
+                variant="secondary"
+                onClick={() => {
+                  this.setState({ displayColorPicker: false });
+                }}
+              >
+                Close
+              </Button>
             </Modal.Footer>
           </Modal>
           <Modal
@@ -600,7 +607,7 @@ export type Player = {
   ready: boolean;
 };
 export type Role = "clue" | "guess";
-export default BigWord;
+
 function ColorPicker(props: any) {
   const [color, setColor] = useState(props.initial.hex());
   return (
@@ -616,3 +623,5 @@ function ColorPicker(props: any) {
     ></ChromePicker>
   );
 }
+
+export default BigWord;

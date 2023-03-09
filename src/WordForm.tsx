@@ -36,6 +36,7 @@ export class WordForm extends React.Component<WordFormProps, WordFormState> {
           name="word"
           value={this.state.word}
           className="mb-3"
+          autoComplete="off"
           onChange={this.handleChange}
         />
         <Button type="submit" value="Submit" className="mb-3">
